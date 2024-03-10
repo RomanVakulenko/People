@@ -9,21 +9,55 @@
 /* Begin PBXBuildFile section */
 		ADC5128E2B9E369C00A537EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC5128D2B9E369C00A537EC /* AppDelegate.swift */; };
 		ADC512902B9E369C00A537EC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC5128F2B9E369C00A537EC /* SceneDelegate.swift */; };
-		ADC512922B9E369C00A537EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512912B9E369C00A537EC /* ViewController.swift */; };
-		ADC512952B9E369C00A537EC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ADC512932B9E369C00A537EC /* Main.storyboard */; };
+		ADC512922B9E369C00A537EC /* PeopleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512912B9E369C00A537EC /* PeopleViewController.swift */; };
 		ADC512972B9E369D00A537EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADC512962B9E369D00A537EC /* Assets.xcassets */; };
 		ADC5129A2B9E369D00A537EC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ADC512982B9E369D00A537EC /* LaunchScreen.storyboard */; };
+		ADC512A32B9E3A4900A537EC /* CoordinatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512A22B9E3A4900A537EC /* CoordinatorProtocol.swift */; };
+		ADC512A62B9E3A7300A537EC /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512A52B9E3A7300A537EC /* MainCoordinator.swift */; };
+		ADC512A82B9E3ACB00A537EC /* PeopleFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512A72B9E3ACB00A537EC /* PeopleFlowCoordinator.swift */; };
+		ADC512AB2B9E49E600A537EC /* PeopleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512AA2B9E49E600A537EC /* PeopleViewModel.swift */; };
+		ADC512AD2B9E4A2600A537EC /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512AC2B9E4A2600A537EC /* DetailViewController.swift */; };
+		ADC512B02B9E4A4300A537EC /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512AF2B9E4A4300A537EC /* DetailViewModel.swift */; };
+		ADC512B22B9E4EA800A537EC /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512B12B9E4EA800A537EC /* NetworkService.swift */; };
+		ADC512B52B9E4F8B00A537EC /* DataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512B42B9E4F8B00A537EC /* DataMapper.swift */; };
+		ADC512B82B9E50DF00A537EC /* RouterError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512B72B9E50DF00A537EC /* RouterError.swift */; };
+		ADC512BA2B9E52DE00A537EC /* PersonModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512B92B9E52DE00A537EC /* PersonModel.swift */; };
+		ADC512BD2B9E55CF00A537EC /* FilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512BC2B9E55CF00A537EC /* FilterCell.swift */; };
+		ADC512BF2B9E563000A537EC /* Date + ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512BE2B9E563000A537EC /* Date + ext.swift */; };
+		ADC512C22B9E569000A537EC /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512C12B9E569000A537EC /* Constants.swift */; };
+		ADC512C42B9E571700A537EC /* PersonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512C32B9E571700A537EC /* PersonCell.swift */; };
+		ADC512C62B9E572100A537EC /* SkeletonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512C52B9E572100A537EC /* SkeletonCell.swift */; };
+		ADC512CA2B9E577300A537EC /* DetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512C92B9E577300A537EC /* DetailCell.swift */; };
+		ADC512CE2B9E57D200A537EC /* UIView + ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512CD2B9E57D200A537EC /* UIView + ext.swift */; };
+		ADC512D02B9E581A00A537EC /* Print + ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512CF2B9E581A00A537EC /* Print + ext.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		ADC5128A2B9E369C00A537EC /* People.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = People.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADC5128D2B9E369C00A537EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ADC5128F2B9E369C00A537EC /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		ADC512912B9E369C00A537EC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		ADC512942B9E369C00A537EC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		ADC512912B9E369C00A537EC /* PeopleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleViewController.swift; sourceTree = "<group>"; };
 		ADC512962B9E369D00A537EC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ADC512992B9E369D00A537EC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ADC5129B2B9E369D00A537EC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADC512A22B9E3A4900A537EC /* CoordinatorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorProtocol.swift; sourceTree = "<group>"; };
+		ADC512A52B9E3A7300A537EC /* MainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinator.swift; sourceTree = "<group>"; };
+		ADC512A72B9E3ACB00A537EC /* PeopleFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleFlowCoordinator.swift; sourceTree = "<group>"; };
+		ADC512AA2B9E49E600A537EC /* PeopleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleViewModel.swift; sourceTree = "<group>"; };
+		ADC512AC2B9E4A2600A537EC /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
+		ADC512AF2B9E4A4300A537EC /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
+		ADC512B12B9E4EA800A537EC /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		ADC512B42B9E4F8B00A537EC /* DataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataMapper.swift; sourceTree = "<group>"; };
+		ADC512B72B9E50DF00A537EC /* RouterError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterError.swift; sourceTree = "<group>"; };
+		ADC512B92B9E52DE00A537EC /* PersonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonModel.swift; sourceTree = "<group>"; };
+		ADC512BC2B9E55CF00A537EC /* FilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCell.swift; sourceTree = "<group>"; };
+		ADC512BE2B9E563000A537EC /* Date + ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + ext.swift"; sourceTree = "<group>"; };
+		ADC512C12B9E569000A537EC /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		ADC512C32B9E571700A537EC /* PersonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonCell.swift; sourceTree = "<group>"; };
+		ADC512C52B9E572100A537EC /* SkeletonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonCell.swift; sourceTree = "<group>"; };
+		ADC512C92B9E577300A537EC /* DetailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailCell.swift; sourceTree = "<group>"; };
+		ADC512CD2B9E57D200A537EC /* UIView + ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + ext.swift"; sourceTree = "<group>"; };
+		ADC512CF2B9E581A00A537EC /* Print + ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Print + ext.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,15 +90,112 @@
 		ADC5128C2B9E369C00A537EC /* People */ = {
 			isa = PBXGroup;
 			children = (
-				ADC5128D2B9E369C00A537EC /* AppDelegate.swift */,
-				ADC5128F2B9E369C00A537EC /* SceneDelegate.swift */,
-				ADC512912B9E369C00A537EC /* ViewController.swift */,
-				ADC512932B9E369C00A537EC /* Main.storyboard */,
+				ADC512A12B9E39D100A537EC /* Application */,
+				ADC512A42B9E3A5900A537EC /* Coordinators */,
+				ADC512B62B9E505A00A537EC /* CoreNetwork Layer */,
+				ADC512B32B9E4F0600A537EC /* Business Layer */,
+				ADC512BB2B9E52E300A537EC /* Model */,
+				ADC512A92B9E49CE00A537EC /* People */,
+				ADC512AE2B9E4A2A00A537EC /* Detail */,
+				ADC512C02B9E563800A537EC /* Helpers */,
 				ADC512962B9E369D00A537EC /* Assets.xcassets */,
 				ADC512982B9E369D00A537EC /* LaunchScreen.storyboard */,
 				ADC5129B2B9E369D00A537EC /* Info.plist */,
 			);
 			path = People;
+			sourceTree = "<group>";
+		};
+		ADC512A12B9E39D100A537EC /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				ADC5128D2B9E369C00A537EC /* AppDelegate.swift */,
+				ADC5128F2B9E369C00A537EC /* SceneDelegate.swift */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		ADC512A42B9E3A5900A537EC /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512A22B9E3A4900A537EC /* CoordinatorProtocol.swift */,
+				ADC512A52B9E3A7300A537EC /* MainCoordinator.swift */,
+				ADC512A72B9E3ACB00A537EC /* PeopleFlowCoordinator.swift */,
+			);
+			path = Coordinators;
+			sourceTree = "<group>";
+		};
+		ADC512A92B9E49CE00A537EC /* People */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512912B9E369C00A537EC /* PeopleViewController.swift */,
+				ADC512AA2B9E49E600A537EC /* PeopleViewModel.swift */,
+				ADC512C72B9E574100A537EC /* Cell */,
+			);
+			path = People;
+			sourceTree = "<group>";
+		};
+		ADC512AE2B9E4A2A00A537EC /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512AC2B9E4A2600A537EC /* DetailViewController.swift */,
+				ADC512AF2B9E4A4300A537EC /* DetailViewModel.swift */,
+				ADC512CC2B9E577E00A537EC /* Cell */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		ADC512B32B9E4F0600A537EC /* Business Layer */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512B12B9E4EA800A537EC /* NetworkService.swift */,
+				ADC512B72B9E50DF00A537EC /* RouterError.swift */,
+			);
+			path = "Business Layer";
+			sourceTree = "<group>";
+		};
+		ADC512B62B9E505A00A537EC /* CoreNetwork Layer */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512B42B9E4F8B00A537EC /* DataMapper.swift */,
+			);
+			path = "CoreNetwork Layer";
+			sourceTree = "<group>";
+		};
+		ADC512BB2B9E52E300A537EC /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512B92B9E52DE00A537EC /* PersonModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		ADC512C02B9E563800A537EC /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512BE2B9E563000A537EC /* Date + ext.swift */,
+				ADC512C12B9E569000A537EC /* Constants.swift */,
+				ADC512CF2B9E581A00A537EC /* Print + ext.swift */,
+				ADC512CD2B9E57D200A537EC /* UIView + ext.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		ADC512C72B9E574100A537EC /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512BC2B9E55CF00A537EC /* FilterCell.swift */,
+				ADC512C32B9E571700A537EC /* PersonCell.swift */,
+				ADC512C52B9E572100A537EC /* SkeletonCell.swift */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
+		ADC512CC2B9E577E00A537EC /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				ADC512C92B9E577300A537EC /* DetailCell.swift */,
+			);
+			path = Cell;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,7 +258,6 @@
 			files = (
 				ADC5129A2B9E369D00A537EC /* LaunchScreen.storyboard in Resources */,
 				ADC512972B9E369D00A537EC /* Assets.xcassets in Resources */,
-				ADC512952B9E369C00A537EC /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,23 +268,33 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ADC512922B9E369C00A537EC /* ViewController.swift in Sources */,
+				ADC512BA2B9E52DE00A537EC /* PersonModel.swift in Sources */,
+				ADC512B22B9E4EA800A537EC /* NetworkService.swift in Sources */,
+				ADC512922B9E369C00A537EC /* PeopleViewController.swift in Sources */,
 				ADC5128E2B9E369C00A537EC /* AppDelegate.swift in Sources */,
+				ADC512C62B9E572100A537EC /* SkeletonCell.swift in Sources */,
+				ADC512A32B9E3A4900A537EC /* CoordinatorProtocol.swift in Sources */,
+				ADC512A62B9E3A7300A537EC /* MainCoordinator.swift in Sources */,
+				ADC512B02B9E4A4300A537EC /* DetailViewModel.swift in Sources */,
+				ADC512C22B9E569000A537EC /* Constants.swift in Sources */,
+				ADC512BD2B9E55CF00A537EC /* FilterCell.swift in Sources */,
+				ADC512AB2B9E49E600A537EC /* PeopleViewModel.swift in Sources */,
+				ADC512D02B9E581A00A537EC /* Print + ext.swift in Sources */,
 				ADC512902B9E369C00A537EC /* SceneDelegate.swift in Sources */,
+				ADC512BF2B9E563000A537EC /* Date + ext.swift in Sources */,
+				ADC512A82B9E3ACB00A537EC /* PeopleFlowCoordinator.swift in Sources */,
+				ADC512CE2B9E57D200A537EC /* UIView + ext.swift in Sources */,
+				ADC512B52B9E4F8B00A537EC /* DataMapper.swift in Sources */,
+				ADC512AD2B9E4A2600A537EC /* DetailViewController.swift in Sources */,
+				ADC512C42B9E571700A537EC /* PersonCell.swift in Sources */,
+				ADC512CA2B9E577300A537EC /* DetailCell.swift in Sources */,
+				ADC512B82B9E50DF00A537EC /* RouterError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		ADC512932B9E369C00A537EC /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				ADC512942B9E369C00A537EC /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		ADC512982B9E369D00A537EC /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -292,7 +432,6 @@
 				INFOPLIST_FILE = People/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -320,7 +459,6 @@
 				INFOPLIST_FILE = People/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

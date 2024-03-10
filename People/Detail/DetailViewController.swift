@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  DetailViewController.swift
 //  People
 //
 //  Created by Roman Vakulenko on 10.03.2024.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class DetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,4 +16,3 @@ class ViewController: UIViewController {
 
 
 }
-
