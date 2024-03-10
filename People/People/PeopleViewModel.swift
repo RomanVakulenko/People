@@ -52,7 +52,7 @@ final class DownloadViewModel {
 
     // MARK: - Public methods
     func showSecondVC() {
-        coordinator?.pushSecondVC(emptyVideoDelegate: self)
+        coordinator?.pushDetailViewController(withModel: PersonModel)
     }
 }
 

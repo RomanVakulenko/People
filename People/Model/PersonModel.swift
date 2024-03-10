@@ -9,7 +9,7 @@ import Foundation
 
 
 // MARK: - Welcome
-struct People: Codable {
+struct PersonModel: Codable {
     let people: [PersonInfo]
 }
 
