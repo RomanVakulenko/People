@@ -40,7 +40,7 @@ final class DownloadViewModel {
 
     // MARK: - Private properties
     private weak var coordinator: PeopleFlowCoordinatorProtocol?
-    private let networkService: YTNetworkServiceProtocol
+    private let networkService: NetworkServiceProtocol
 
 
     // MARK: - Init
