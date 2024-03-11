@@ -104,7 +104,6 @@ final class SkeletonCell: UITableViewCell {
         NSLayoutConstraint.activate([
             circleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             circleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 78), //152+12+6-52-44
-            circleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             circleView.heightAnchor.constraint(equalToConstant: 72),
             circleView.widthAnchor.constraint(equalToConstant: 72),
 

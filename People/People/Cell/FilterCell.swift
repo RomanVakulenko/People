@@ -9,14 +9,14 @@ import UIKit
 
 final class FilterCell: UICollectionViewCell {
 
-    let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    let underlineView: UIView = {
+    private lazy var underlineView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.384, green: 0.211, blue: 1, alpha: 1)
         view.translatesAutoresizingMaskIntoConstraints = false

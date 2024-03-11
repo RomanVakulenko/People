@@ -10,7 +10,7 @@ import UIKit
 final class PeopleViewController: UIViewController {
 
     let viewModel: DownloadViewModel
-    let departments = ["Все", "Designers", "Analytics", "Managers", "Android", "iOS", "Qa", "Back_office", "Frontender", "HR", "PR", "Backend", "Support"]
+    let departments = ["Все", "Designers", "Analysts", "Managers", "Android", "iOS", "QA", "Back_office", "Frontenders", "HR", "PR", "Backenders", "Support"]
     var selectedIndexPath = IndexPath(item: 0, section: 0)
 
 

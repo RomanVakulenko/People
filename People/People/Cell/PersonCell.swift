@@ -7,7 +7,6 @@
 
 import UIKit
 
-final class PersonCell: UICollectionViewCell {
+final class PersonCell: UITableViewCell {
 
 }
-
