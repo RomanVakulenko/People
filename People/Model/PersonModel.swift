@@ -8,12 +8,10 @@
 import Foundation
 
 
-// MARK: - Welcome
 struct PersonModel: Codable {
     let people: [PersonInfo]
 }
 
-// MARK: - Item
 struct PersonInfo: Codable {
     let id, avatarURL, firstName, lastName, userTag, department, position, birthday, phone: String
 }
