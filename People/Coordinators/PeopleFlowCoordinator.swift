@@ -5,12 +5,10 @@
 //  Created by Roman Vakulenko on 10.03.2024.
 //
 
-import Foundation
 import UIKit
-import AVKit
 
 protocol PeopleFlowCoordinatorProtocol: AnyObject {
-    func pushDetailViewController(withModel model: PersonModel)
+    func pushDetailViewController(withModel model: PersonInfo)
     func popToRootVC()
 }
 
@@ -30,7 +28,7 @@ final class PeopleFlowCoordinator {
         let mapper = DataMapper()
 //        let fileManager = LocalFilesManager(mapper: mapper)
 //        let networkService = YTNetworkService(manager: fileManager, mapper: mapper)
-        let viewModel = DownloadViewModel(coordinator: self
+        let viewModel = PeopleViewModel(coordinator: self
 //                                          networkService: networkService,
 //                                          fManager: fileManager
         )
@@ -40,7 +38,7 @@ final class PeopleFlowCoordinator {
         return navigationController
     }
 
-    private func createDetailViewController(withModel model: PersonModel) -> UIViewController {
+    private func createDetailViewController(withModel model: PersonInfo) -> UIViewController {
 
         let mapper = DataMapper()
 //        let fileManager = LocalFilesManager(mapper: mapper)
@@ -68,7 +66,7 @@ extension PeopleFlowCoordinator: CoordinatorProtocol {
 // MARK: - FlowCoordinatorProtocol
 extension PeopleFlowCoordinator: PeopleFlowCoordinatorProtocol {
 
-    func pushDetailViewController(withModel model: PersonModel) {
+    func pushDetailViewController(withModel model: PersonInfo) {
         let detailViewController = createDetailViewController(withModel: model)
         navigationController.pushViewController(detailViewController, animated: true)
     }

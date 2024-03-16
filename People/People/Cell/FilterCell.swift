@@ -9,6 +9,7 @@ import UIKit
 
 final class FilterCell: UICollectionViewCell {
 
+    // MARK: - SubTypes
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
@@ -25,7 +26,7 @@ final class FilterCell: UICollectionViewCell {
     }()
 
 
-    // MARK: - Lifecycle
+    // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -38,7 +39,6 @@ final class FilterCell: UICollectionViewCell {
 
 
     // MARK: - Public methods
-
     func setupFilter(text: String) {
         titleLabel.text = text
     }

@@ -8,77 +8,28 @@
 import UIKit
 
 final class SkeletonCell: UITableViewCell {
-
+    
+    // MARK: - SubTypes
     private let circleView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = 5
-        view.layer.masksToBounds = false
-        view.layer.shadowOpacity = 0.25
-        view.layer.shadowOffset = CGSize(width: 1, height: 2)
-        view.layer.shadowRadius = 2
-
-        view.frame = CGRect(x: 0, y: 0, width: 72, height: 72)
-        let layer0 = CAGradientLayer()
-        layer0.colors = [
-            UIColor(red: 0.955, green: 0.955, blue: 0.965, alpha: 1).cgColor,
-            UIColor(red: 0.979, green: 0.979, blue: 0.981, alpha: 1).cgColor
-        ]
-        layer0.locations = [0, 1]
-        layer0.startPoint = CGPoint(x: 0.25, y: 0.5)
-        layer0.endPoint = CGPoint(x: 0.75, y: 0.5)
-        layer0.transform = CATransform3DMakeAffineTransform(
-            CGAffineTransform(a: 1, b: 0, c: 0, d: 3.08, tx: 0, ty: -1.54))
-        layer0.bounds = view.bounds.insetBy(dx: -0.5*view.bounds.size.width, dy: -0.5*view.bounds.size.height)
-        layer0.position = view.center
-        view.layer.addSublayer(layer0)
-        view.layer.cornerRadius = 50
-
+        view.layer.cornerRadius = 35.5
+        view.backgroundColor = UIColor(red: 0.955, green: 0.955, blue: 0.965, alpha: 1)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-
 
     var insteadOfNameView: UIView = {
         let view = UIView()
-        view.frame = CGRect(x: 0, y: 0, width: 144, height: 16)
-        let layer0 = CAGradientLayer()
-        layer0.colors = [
-            UIColor(red: 0.955, green: 0.955, blue: 0.965, alpha: 1).cgColor,
-            UIColor(red: 0.979, green: 0.979, blue: 0.981, alpha: 1).cgColor
-        ]
-        layer0.locations = [0, 1]
-        layer0.startPoint = CGPoint(x: 0.25, y: 0.5)
-        layer0.endPoint = CGPoint(x: 0.75, y: 0.5)
-        layer0.transform = CATransform3DMakeAffineTransform(
-            CGAffineTransform(a: 1, b: 0, c: 0, d: 3.08, tx: 0, ty: -1.54))
-        layer0.bounds = view.bounds.insetBy(dx: -0.5*view.bounds.size.width, dy: -0.5*view.bounds.size.height)
-        layer0.position = view.center
-        view.layer.addSublayer(layer0)
-        view.layer.cornerRadius = 50
-
+        view.layer.cornerRadius = 8
+        view.backgroundColor = UIColor(red: 0.955, green: 0.955, blue: 0.965, alpha: 1)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
-
     var insteadOfPositionView: UIView = {
         let view = UIView()
-        view.frame = CGRect(x: 0, y: 0, width: 80, height: 12)
-        let layer0 = CAGradientLayer()
-        layer0.colors = [
-            UIColor(red: 0.955, green: 0.955, blue: 0.965, alpha: 1).cgColor,
-            UIColor(red: 0.979, green: 0.979, blue: 0.981, alpha: 1).cgColor
-        ]
-        layer0.locations = [0, 1]
-        layer0.startPoint = CGPoint(x: 0.25, y: 0.5)
-        layer0.endPoint = CGPoint(x: 0.75, y: 0.5)
-        layer0.transform = CATransform3DMakeAffineTransform(
-            CGAffineTransform(a: 1, b: 0, c: 0, d: 3.08, tx: 0, ty: -1.54))
-        layer0.bounds = view.bounds.insetBy(dx: -0.5*view.bounds.size.width, dy: -0.5*view.bounds.size.height)
-        layer0.position = view.center
-        view.layer.addSublayer(layer0)
-        view.layer.cornerRadius = 50
-
+        view.layer.cornerRadius = 6
+        view.backgroundColor = UIColor(red: 0.955, green: 0.955, blue: 0.965, alpha: 1)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -94,6 +45,11 @@ final class SkeletonCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+
+    // MARK: - Public methods
+//    func configure() {
+//    }
+
     // MARK: - Private methods
     private func setupView() {
         [circleView, insteadOfNameView, insteadOfPositionView].forEach { contentView.addSubview($0) }
@@ -103,7 +59,7 @@ final class SkeletonCell: UITableViewCell {
     private func layout() {
         NSLayoutConstraint.activate([
             circleView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            circleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 78), //152+12+6-52-44
+            circleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
             circleView.heightAnchor.constraint(equalToConstant: 72),
             circleView.widthAnchor.constraint(equalToConstant: 72),
 
