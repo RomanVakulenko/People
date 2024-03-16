@@ -9,7 +9,7 @@ import UIKit
 
 final class PersonCell: UITableViewCell {
 
-    // MARK: - Private properties
+    // MARK: - SubTypes
     private lazy var avatarView: UIImageView = {
         var imageView = UIImageView()
         imageView.layer.cornerRadius = 50
@@ -56,7 +56,7 @@ final class PersonCell: UITableViewCell {
     }()
 
 
-    // MARK: - Lifecycle
+    // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupView()
@@ -69,7 +69,7 @@ final class PersonCell: UITableViewCell {
 
 
     // MARK: - Public methods
-    func setupCell(with model: PersonInfo) {
+    func fill(with model: PersonInfo) {
         avatarView.image = UIImage(named: model.avatarURL) //cкачивать, сохранять и показывать
         nameLabel.text = model.firstName + model.lastName
         nickNameLabel.text = model.userTag

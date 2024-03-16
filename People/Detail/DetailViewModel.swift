@@ -10,9 +10,9 @@ import Foundation
 final class DetailViewModel {
 
     // MARK: - Public properties
-    var personModel: PersonModel
+    var personModel: PersonInfo
 
-    init(detailViewModel: PersonModel) {
+    init(detailViewModel: PersonInfo) {
         self.personModel = detailViewModel
     }
 

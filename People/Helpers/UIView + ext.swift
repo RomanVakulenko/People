@@ -8,7 +8,7 @@
 import UIKit
 
 extension UIView {
-    static var identifier: String {
-        String(describing: self)
+    class var ReuseId: String { //с прописной-заглавной, поскольку глобальная переменная
+        "\(String(describing: self))Id"
     }
 }

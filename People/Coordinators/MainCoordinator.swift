@@ -5,22 +5,20 @@
 //  Created by Roman Vakulenko on 10.03.2024.
 //
 
-import Foundation
 import UIKit
 
 final class MainCoordinator {
 
     // MARK: - Private properties
-    /// хранит ссылки на координаторы, иначе, при выходе за область видимости функции start, потеряем ссылки на координаторов (когда main создает дочерние или дочерние создают еще свои дочерние)
+    /// Ххранит ссылки на координаторы, иначе, при выходе за область видимости функции start, потеряем ссылки на координаторов (когда main создает дочерние или дочерние создают еще свои дочерние)
     private var childCoordinators = [CoordinatorProtocol]()
 
     // MARK: - Private methods
-    /// т.к. координатор может состоять из кучи объектов, то лучше обернуть в метод
     private func makePeopleCoordinator() -> CoordinatorProtocol {
         let coordinator = PeopleFlowCoordinator(navigationController: UINavigationController())
         return coordinator
     }
-    /// сравниваем адреса памяти, ссылается ли объект на тот же адрес памяти (т.е. до тех пор пока координаторов нет - добавляй их)
+    /// Сравниваем адреса памяти, ссылается ли объект на тот же адрес памяти (т.е. до тех пор пока координаторов нет - добавляй их)
     private func addChildCoordinator(_ coordinator: CoordinatorProtocol) {
         guard !childCoordinators.contains(where: { $0 === coordinator }) else { return }
         childCoordinators.append(coordinator)
@@ -30,7 +28,7 @@ final class MainCoordinator {
 
 // MARK: - Extension
 extension MainCoordinator: CoordinatorProtocol {
-    /// этот VC мы возвращаем в sceneDelegate
+    /// Этот VC возвращаем в sceneDelegate
     func start() -> UIViewController {
         let peopleScreenCoordinator = makePeopleCoordinator()
         addChildCoordinator(peopleScreenCoordinator)
