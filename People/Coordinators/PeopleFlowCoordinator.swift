@@ -26,12 +26,9 @@ final class PeopleFlowCoordinator {
     // MARK: - Private methods
     private func createPeopleViewController() -> UIViewController {
         let mapper = DataMapper()
-//        let fileManager = LocalFilesManager(mapper: mapper)
-//        let networkService = YTNetworkService(manager: fileManager, mapper: mapper)
-        let viewModel = PeopleViewModel(coordinator: self
-//                                          networkService: networkService,
-//                                          fManager: fileManager
-        )
+        let networkRouter = NetworkRouter()
+        let networkService = NetworkService(networkRouter: networkRouter, mapper: mapper)
+        let viewModel = PeopleViewModel(coordinator: self, networkService: networkService)
         let peopleViewController = PeopleViewController(viewModel: viewModel)
         let navController = UINavigationController(rootViewController: peopleViewController)
         navigationController = navController
@@ -40,7 +37,7 @@ final class PeopleFlowCoordinator {
 
     private func createDetailViewController(withModel model: PersonInfo) -> UIViewController {
 
-        let mapper = DataMapper()
+//        let mapper = DataMapper()
 //        let fileManager = LocalFilesManager(mapper: mapper)
 //        let networkService = YTNetworkService(manager: fileManager, mapper: mapper)
         let viewModel = DetailViewModel(detailViewModel: model

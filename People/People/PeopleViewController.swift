@@ -126,6 +126,8 @@ final class PeopleViewController: UIViewController {
         view.backgroundColor = .white
         setupSearchController()
         setupFilterAsCollectionAndTableView()
+        bindViewModel()
+        viewModel.downloadAndSavePeopleInfo()
     }
 
 
@@ -141,20 +143,20 @@ final class PeopleViewController: UIViewController {
 
             switch state {
             case .none:
-                <#code#>
+                ()
             case .loading:
-                <#code#>
+                ()
             case .refreshing:
-                <#code#>
+                ()
             case .loadedAndSaved:
-                <#code#>
+                strongSelf.tableView.reloadData()
             case .allPeople:
-                <#code#>
+                ()
             case .sortByAlphabet:
-                <#code#>
+                ()
             case .sortByBirthDay:
-                <#code#>
-            case .error(alertText: let alertText): //alertText для задания со *
+                ()
+            case .error(alertText: _):
                 strongSelf.setupErrorView()
             }
         }
@@ -232,32 +234,26 @@ final class PeopleViewController: UIViewController {
 extension PeopleViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        if viewModel.isFirstLaunch() {
-//            return 8
-//        } else {
-//            return self.viewModel.personModel.count
-//        }
-        8
+        if viewModel.isFirstLaunch() {
+            return 8
+        } else {
+            return self.viewModel.personModel.count
+        }
+//        8
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        guard let cell = tableView.dequeueReusableCell(withIdentifier: PersonCell.ReuseId, for: indexPath) as? PersonCell else { return UITableViewCell() }
-        guard let skeletonCell = tableView.dequeueReusableCell(withIdentifier: SkeletonCell.ReuseId, for: indexPath) as? SkeletonCell else { return UITableViewCell() }
-//
-//        let model = viewModel.personModel[indexPath.item]
-//        viewModel.isFirstLaunch() ? skeletonCell.configure() : cell.fill(with: model)
-//        return cell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: PersonCell.ReuseId, for: indexPath) as? PersonCell,
+              let skeletonCell = tableView.dequeueReusableCell(withIdentifier: SkeletonCell.ReuseId, for: indexPath) as? SkeletonCell else {
+            return UITableViewCell() }
 
-//        if viewModel.isFirstLaunch() {
-//            guard let skeletonCell = tableView.dequeueReusableCell(withIdentifier: SkeletonCell.ReuseId, for: indexPath) as? SkeletonCell else { return UITableViewCell() }
-
+        if viewModel.isFirstLaunch() {
             return skeletonCell
-//        } else {
-//            guard let cell = tableView.dequeueReusableCell(withIdentifier: PersonCell.ReuseId, for: indexPath) as? PersonCell else { return UITableViewCell() }
-//            let model = viewModel.allPeople[indexPath.item]
-//            cell.fill(with: model)
-//            return cell
-//        }
+        } else {
+            let model = viewModel.personModel[indexPath.item]
+            cell.fill(with: model)
+            return cell
+        }
     }
 }
 

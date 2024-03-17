@@ -9,16 +9,16 @@ import Foundation
 
 
 struct PersonModel: Codable {
-    let people: [PersonInfo]
+    let items: [PersonInfo]
 }
 
 struct PersonInfo: Codable {
-    let id, avatarURL, firstName, lastName,
+    let id, avatarUrl, firstName, lastName,
         userTag, department, position, birthday, phone: String
 
     init() {
         self.id = ""
-        self.avatarURL = ""
+        self.avatarUrl = ""
         self.firstName = ""
         self.lastName = ""
         self.userTag = ""

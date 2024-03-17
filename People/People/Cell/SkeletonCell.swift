@@ -47,8 +47,8 @@ final class SkeletonCell: UITableViewCell {
 
 
     // MARK: - Public methods
-//    func configure() {
-//    }
+    func configure() {
+    }
 
     // MARK: - Private methods
     private func setupView() {

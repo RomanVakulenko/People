@@ -70,8 +70,8 @@ final class PersonCell: UITableViewCell {
 
     // MARK: - Public methods
     func fill(with model: PersonInfo) {
-        avatarView.image = UIImage(named: model.avatarURL) //cкачивать, сохранять и показывать
-        nameLabel.text = model.firstName + model.lastName
+        avatarView.image = UIImage(named: model.avatarUrl) //cкачивать, сохранять и показывать
+        nameLabel.text = model.firstName + " " + model.lastName
         nickNameLabel.text = model.userTag
         positionLabel.text = model.position
         birthdayLabel.text = model.birthday
