@@ -11,19 +11,20 @@ protocol DownloadProtocol: AnyObject {
     func downloadAndSavePeopleInfo()
 }
 
-final class PeopleViewModel {
+// MARK: - Enum
+enum State: Equatable {
+    case none
+    case loading
+    case refreshing
+    case loadedAndSaved
+    case allPeople
+    case sortByAlphabet
+    case sortByBirthDay
+    case error(alertText: String)
+}
 
-    // MARK: - Enum
-    enum State {
-        case none
-        case loading
-        case refreshing
-        case loadedAndSaved
-        case allPeople
-        case sortByAlphabet
-        case sortByBirthDay
-        case error(alertText: String)
-    }
+
+final class PeopleViewModel {
 
     // MARK: - Public properties
     var personModel: [PersonInfo] {
@@ -39,23 +40,26 @@ final class PeopleViewModel {
     // MARK: - Private properties
     private var inSearchMode = false
     private var onPersonUpdated: (()->Void)?
-    private(set) var allPeople: [PersonInfo] = [] {
-        didSet {
-            self.onPersonUpdated?()
-        }
-    }
+    private(set) var allPeople: [PersonInfo] = []
+//    {
+//        didSet {
+//            self.onPersonUpdated?()
+//        }
+//    }
     private(set) var filteredPerson: [PersonInfo] = []
+
     private weak var coordinator: PeopleFlowCoordinatorProtocol?
     private let networkService: NetworkServiceProtocol
-    private let fileManager = FileManager.default
-    private let userDefaults = UserDefaults.standard
-
+//    private let fileManager = FileManager.default
+    private let userDefaults: UserDefaults
 
     // MARK: - Init
     init(coordinator: PeopleFlowCoordinatorProtocol,
-         networkService: NetworkServiceProtocol) {
+         networkService: NetworkServiceProtocol,
+         userDefaults: UserDefaults = UserDefaults.standard) {
         self.coordinator = coordinator
         self.networkService = networkService
+        self.userDefaults = userDefaults
     }
 
     // MARK: - Public methods
@@ -65,11 +69,11 @@ final class PeopleViewModel {
     }
 
     func isFirstLaunch() -> Bool {
-        let didLaunchBefore = UserDefaults.standard.bool(forKey: "didLaunchBefore")
+        let didLaunchBefore = userDefaults.bool(forKey: "didLaunchBefore")
         if didLaunchBefore {
             return false
         } else {
-            UserDefaults.standard.set(true, forKey: "didLaunchBefore")
+            userDefaults.set(true, forKey: "didLaunchBefore")
             return true
         }
     }
@@ -82,13 +86,12 @@ extension PeopleViewModel: DownloadProtocol {
     func downloadAndSavePeopleInfo() {
         state = .loading
 
-        networkService.getPeopleData { [weak self] result in
+        networkService.loadData { [weak self] result in
             guard let strongSelf = self else {return} // гарантирует, что код кложуры выполнится и, даже если мы в процессе выполнения кложуры уйдем с экрана, то контроллер высвободится после отработки кложуры!
             switch result {
             case .success(let personInfoArr):
                 strongSelf.allPeople = personInfoArr
                 strongSelf.state = .loadedAndSaved
-                print(strongSelf.allPeople)
             case .failure(let error):
                 strongSelf.state = .error(alertText: error.localizedDescription)
             }
@@ -106,14 +109,18 @@ extension PeopleViewModel {
     }
 
     func updateSearchController(searchBarText: String?) {
-        self.filteredPerson = allPeople
+        filteredPerson = allPeople
+        inSearchMode = true
 
         if let searchText = searchBarText?.lowercased() {
-            guard !searchText.isEmpty else { self.onPersonUpdated?(); return }
+            guard !searchText.isEmpty else { onPersonUpdated?(); return }
 
-            self.filteredPerson = self.filteredPerson.filter({ $0.firstName.lowercased().contains(searchText) }) //то, по чему будем фильтровать
+            filteredPerson = filteredPerson.filter({ person in
+                let filterByFullName = (person.firstName + " " + person.lastName).lowercased().contains(searchText)
+                let filterByNickname = person.userTag.lowercased().contains(searchText)
+                return filterByFullName || filterByNickname
+            })
         }
-
-        self.onPersonUpdated?()
+        //        self.onPersonUpdated?()
     }
 }

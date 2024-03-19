@@ -7,6 +7,11 @@
 
 import UIKit
 
+enum SkeletonState {
+    case skeleton
+    case not
+}
+
 final class PeopleViewController: UIViewController {
 
     // MARK: - Public properties
@@ -110,6 +115,8 @@ final class PeopleViewController: UIViewController {
         return collectionView
     }()
 
+    private var skeletonState: SkeletonState = .skeleton
+
     // MARK: - Init
     init(viewModel: PeopleViewModel) {
         self.viewModel = viewModel
@@ -149,6 +156,7 @@ final class PeopleViewController: UIViewController {
             case .refreshing:
                 ()
             case .loadedAndSaved:
+                strongSelf.skeletonState = .not
                 strongSelf.tableView.reloadData()
             case .allPeople:
                 ()
@@ -234,12 +242,11 @@ final class PeopleViewController: UIViewController {
 extension PeopleViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if viewModel.isFirstLaunch() {
-            return 8
+        if viewModel.state != .loadedAndSaved {
+            return 10
         } else {
             return self.viewModel.personModel.count
         }
-//        8
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -247,7 +254,7 @@ extension PeopleViewController: UITableViewDataSource {
               let skeletonCell = tableView.dequeueReusableCell(withIdentifier: SkeletonCell.ReuseId, for: indexPath) as? SkeletonCell else {
             return UITableViewCell() }
 
-        if viewModel.isFirstLaunch() {
+        if skeletonState == .skeleton {
             return skeletonCell
         } else {
             let model = viewModel.personModel[indexPath.item]
@@ -272,13 +279,12 @@ extension PeopleViewController: UISearchResultsUpdating, UISearchControllerDeleg
     func updateSearchResults(for searchController: UISearchController) {
         self.viewModel.setInSearchMode(searchController)
         self.viewModel.updateSearchController(searchBarText: searchController.searchBar.text)
+        tableView.reloadData()
     }
 
     func searchBarBookmarkButtonClicked(_ searchBar: UISearchBar) {
         print("Search bar button called!") //тут можно вызвать фильтр
     }
-
-
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout

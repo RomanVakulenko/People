@@ -11,7 +11,7 @@ import UIKit
 typealias NetworkServiceCompletion = (Result<[PersonInfo], NetworkServiceErrors>) -> Void
 
 protocol NetworkServiceProtocol: AnyObject {
-   func getPeopleData(completion: @escaping NetworkServiceCompletion)
+   func loadData(completion: @escaping NetworkServiceCompletion)
 }
 
 
@@ -44,7 +44,7 @@ final class NetworkService {
 // MARK: - NetworkServiceProtocol
 extension NetworkService: NetworkServiceProtocol {
 
-    func getPeopleData(completion: @escaping NetworkServiceCompletion) {
+    func loadData(completion: @escaping NetworkServiceCompletion) {
         guard let url = StandardEndpoint().url else {
             print("Не удалось создать url")
             return
@@ -61,8 +61,16 @@ extension NetworkService: NetworkServiceProtocol {
 
                    switch result {
                    case .success(let decodedPeopleInfo):
-                      let peopleArr = decodedPeopleInfo.items
-                       completion(.success(peopleArr))
+                       let peopleArr = decodedPeopleInfo.items
+                       let photoDowloader = PhotoServiceDownloader(peopleInfoWithPhoto: peopleArr)
+                       photoDowloader.makePeopleModelWithPhoto(for: peopleArr) { result in
+                           switch result {
+                           case .success(let peopleModelWithPhoto):
+                               completion(.success(peopleModelWithPhoto))
+                           case .failure(let error):
+                               completion(.failure(error as! NetworkServiceErrors))
+                           }
+                       }
 
                    case .failure:
                        completion(.failure(.mapperError(error: .failAtMapping)))
@@ -75,4 +83,5 @@ extension NetworkService: NetworkServiceProtocol {
        }
    }
 }
+
 

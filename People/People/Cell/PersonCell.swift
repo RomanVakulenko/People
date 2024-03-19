@@ -12,9 +12,20 @@ final class PersonCell: UITableViewCell {
     // MARK: - SubTypes
     private lazy var avatarView: UIImageView = {
         var imageView = UIImageView()
-        imageView.layer.cornerRadius = 50
+        imageView.layer.cornerRadius = 35
+        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
+    }()
+
+    private lazy var stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 4
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.addArrangedSubview(nameLabel)
+        stackView.addArrangedSubview(nickNameLabel)
+        return stackView
     }()
 
     private lazy var nameLabel: UILabel = {
@@ -41,6 +52,7 @@ final class PersonCell: UITableViewCell {
         label.textAlignment = .left
         label.textColor = UIColor(red: 0.333, green: 0.333, blue: 0.361, alpha: 1)
         label.font = UIFont(name: "Inter-Regular", size: 13)
+        label.baselineAdjustment = .alignCenters
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -72,37 +84,33 @@ final class PersonCell: UITableViewCell {
     func fill(with model: PersonInfo) {
         avatarView.image = UIImage(named: model.avatarUrl) //cкачивать, сохранять и показывать
         nameLabel.text = model.firstName + " " + model.lastName
-        nickNameLabel.text = model.userTag
+        nickNameLabel.text = model.userTag.lowercased()
         positionLabel.text = model.position
         birthdayLabel.text = model.birthday
+
+        layoutIfNeeded()
     }
 
 
     // MARK: - Private methods
     private func setupView() {
-        [avatarView, nameLabel, nickNameLabel, positionLabel, birthdayLabel].forEach { contentView.addSubview($0) }
+        [avatarView, stackView, positionLabel, birthdayLabel].forEach { contentView.addSubview($0) }
     }
 
     private func setupLayout() {
+
         NSLayoutConstraint.activate([
             avatarView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            avatarView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 78),
+            avatarView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
             avatarView.heightAnchor.constraint(equalToConstant: 72),
             avatarView.widthAnchor.constraint(equalToConstant: 72),
 
-            nameLabel.leadingAnchor.constraint(equalTo: avatarView.leadingAnchor, constant: 88),
-            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 25),
-            nameLabel.heightAnchor.constraint(equalToConstant: 20),
-            nameLabel.trailingAnchor.constraint(equalTo: nickNameLabel.leadingAnchor, constant: -4),
-
-            nickNameLabel.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 4),
-            nickNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 25),
-            nickNameLabel.heightAnchor.constraint(equalToConstant: 18),
-            nickNameLabel.trailingAnchor.constraint(equalTo: birthdayLabel.leadingAnchor, constant: -16),
+            stackView.leadingAnchor.constraint(equalTo: avatarView.leadingAnchor, constant: 88),
+            stackView.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 20),
 
             positionLabel.leadingAnchor.constraint(equalTo: avatarView.leadingAnchor, constant: 88),
-            positionLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 47),
-            positionLabel.heightAnchor.constraint(equalToConstant: 16),
+            positionLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 44),
+            positionLabel.heightAnchor.constraint(equalToConstant: 20),
             positionLabel.trailingAnchor.constraint(equalTo: birthdayLabel.leadingAnchor, constant: -48),
 
             birthdayLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),

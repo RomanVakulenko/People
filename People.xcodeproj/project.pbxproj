@@ -11,6 +11,7 @@
 		AD0986552BA6E49100CDDE39 /* MapperError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0986542BA6E49100CDDE39 /* MapperError.swift */; };
 		AD0986592BA6F2B600CDDE39 /* NetworkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0986582BA6F2B600CDDE39 /* NetworkRouter.swift */; };
 		AD09865B2BA6F37E00CDDE39 /* NetworkServiceErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD09865A2BA6F37E00CDDE39 /* NetworkServiceErrors.swift */; };
+		AD09865F2BA88FD800CDDE39 /* PhotoServiceDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD09865E2BA88FD800CDDE39 /* PhotoServiceDownloader.swift */; };
 		ADC5128E2B9E369C00A537EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC5128D2B9E369C00A537EC /* AppDelegate.swift */; };
 		ADC512902B9E369C00A537EC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC5128F2B9E369C00A537EC /* SceneDelegate.swift */; };
 		ADC512922B9E369C00A537EC /* PeopleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512912B9E369C00A537EC /* PeopleViewController.swift */; };
@@ -41,6 +42,7 @@
 		AD0986542BA6E49100CDDE39 /* MapperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapperError.swift; sourceTree = "<group>"; };
 		AD0986582BA6F2B600CDDE39 /* NetworkRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRouter.swift; sourceTree = "<group>"; };
 		AD09865A2BA6F37E00CDDE39 /* NetworkServiceErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkServiceErrors.swift; sourceTree = "<group>"; };
+		AD09865E2BA88FD800CDDE39 /* PhotoServiceDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoServiceDownloader.swift; sourceTree = "<group>"; };
 		ADC5128A2B9E369C00A537EC /* People.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = People.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADC5128D2B9E369C00A537EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ADC5128F2B9E369C00A537EC /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				ADC512B12B9E4EA800A537EC /* NetworkService.swift */,
+				AD09865E2BA88FD800CDDE39 /* PhotoServiceDownloader.swift */,
 				AD09865A2BA6F37E00CDDE39 /* NetworkServiceErrors.swift */,
 			);
 			path = "Business Layer";
@@ -283,6 +286,7 @@
 				ADC512BA2B9E52DE00A537EC /* PersonModel.swift in Sources */,
 				ADC512B22B9E4EA800A537EC /* NetworkService.swift in Sources */,
 				ADC512922B9E369C00A537EC /* PeopleViewController.swift in Sources */,
+				AD09865F2BA88FD800CDDE39 /* PhotoServiceDownloader.swift in Sources */,
 				ADC5128E2B9E369C00A537EC /* AppDelegate.swift in Sources */,
 				ADC512C62B9E572100A537EC /* SkeletonCell.swift in Sources */,
 				ADC512A32B9E3A4900A537EC /* CoordinatorProtocol.swift in Sources */,
