@@ -13,7 +13,7 @@ struct PersonModel: Codable {
 }
 
 struct PersonInfo: Codable {
-    let id, avatarUrl, firstName, lastName,
+    var id, avatarUrl, firstName, lastName,
         userTag, department, position, birthday, phone: String
 
     init() {

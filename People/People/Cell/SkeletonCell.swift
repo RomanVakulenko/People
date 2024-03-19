@@ -12,7 +12,7 @@ final class SkeletonCell: UITableViewCell {
     // MARK: - SubTypes
     private let circleView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = 35.5
+        view.layer.cornerRadius = 35
         view.backgroundColor = UIColor(red: 0.955, green: 0.955, blue: 0.965, alpha: 1)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
