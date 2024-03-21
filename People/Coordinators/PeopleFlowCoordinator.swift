@@ -5,12 +5,10 @@
 //  Created by Roman Vakulenko on 10.03.2024.
 //
 
-import Foundation
 import UIKit
-import AVKit
 
 protocol PeopleFlowCoordinatorProtocol: AnyObject {
-    func pushDetailViewController(withModel model: PersonModel)
+    func pushDetailViewController(withModel model: PersonInfo)
     func popToRootVC()
 }
 
@@ -28,26 +26,23 @@ final class PeopleFlowCoordinator {
     // MARK: - Private methods
     private func createPeopleViewController() -> UIViewController {
         let mapper = DataMapper()
-        let fileManager = LocalFilesManager(mapper: mapper)
-        let networkService = YTNetworkService(manager: fileManager, mapper: mapper)
-        let viewModel = DownloadViewModel(coordinator: self,
-                                          networkService: networkService,
-                                          fManager: fileManager
-        )
+        let networkRouter = NetworkRouter()
+        let networkService = NetworkService(networkRouter: networkRouter, mapper: mapper)
+        let viewModel = PeopleViewModel(coordinator: self, networkService: networkService)
         let peopleViewController = PeopleViewController(viewModel: viewModel)
         let navController = UINavigationController(rootViewController: peopleViewController)
         navigationController = navController
         return navigationController
     }
 
-    private func createDetailViewController() -> UIViewController {
+    private func createDetailViewController(withModel model: PersonInfo) -> UIViewController {
 
-        let mapper = DataMapper()
-        let fileManager = LocalFilesManager(mapper: mapper)
-        let networkService = YTNetworkService(manager: fileManager, mapper: mapper)
-        let viewModel = DetailViewModel(coordinator: self,
-                                        mapper: mapper,
-                                        ytNetworkService: networkService
+//        let mapper = DataMapper()
+//        let fileManager = LocalFilesManager(mapper: mapper)
+//        let networkService = YTNetworkService(manager: fileManager, mapper: mapper)
+        let viewModel = DetailViewModel(detailViewModel: model
+//                                        mapper: mapper,
+//                                        ytNetworkService: networkService
         )
         let detailViewController = DetailViewController(viewModel: viewModel)
         return detailViewController
@@ -68,8 +63,8 @@ extension PeopleFlowCoordinator: CoordinatorProtocol {
 // MARK: - FlowCoordinatorProtocol
 extension PeopleFlowCoordinator: PeopleFlowCoordinatorProtocol {
 
-    func pushDetailViewController() {
-        let detailViewController = createDetailViewController()
+    func pushDetailViewController(withModel model: PersonInfo) {
+        let detailViewController = createDetailViewController(withModel: model)
         navigationController.pushViewController(detailViewController, animated: true)
     }
 

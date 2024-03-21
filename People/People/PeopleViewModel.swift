@@ -8,108 +8,286 @@
 import UIKit
 
 protocol DownloadProtocol: AnyObject {
-    func downloadAndSavePeopleInfo(at url: URL)
+    func downloadAndSavePeopleInfo()
+}
+///для переклчения радиоБаттон о сортировке и чтобы запомнить состояние до refresh
+enum SortState {
+    case sortByNameChoosen
+    case groupByYearChoosen
+    case sortByBirthdayChoosen
 }
 
+
 // MARK: - Enum
-enum State {
+enum State: Equatable {
     case none
     case loading
     case refreshing
     case loadedAndSaved
-    case allPeople
-    case sortByAlphabet
-    case sortByBirthDay
+    case searchResultNotEmpty
+    case sortedByAlphabet
+    case groupedByYear
+    case sortedByDay
+    case nobodyWasFound
     case error(alertText: String)
 }
 
-final class DownloadViewModel {
+
+final class PeopleViewModel {
 
     // MARK: - Public properties
     var closureChangingState: ((State) -> Void)?
-    let fManager: LocalFilesManagerProtocol
-
     var state: State = .none {
         didSet {
             closureChangingState?(state)
         }
     }
-
-    var fileName: String?
-    var photoURL: URL?
+    var peopleGroupedByYear: [[PersonInfo]] = []
+    var peopleSortedByBirthday: [[PersonInfo]] = []
+    var personModel: [PersonInfo] {
+        self.isSearching || self.isDepartmentChoosen ? filteredPerson : downloadedPeople
+    }
+    var tabFilteredPerson: [PersonInfo] = []
+    var downloadedPeople: [PersonInfo] = []
+    var textInSearchBar = ""
+    var sortState: SortState = .sortByNameChoosen
+    var departmentBeforeRefresh = Department.all.rawValue ///для refresh
 
     // MARK: - Private properties
+    var filteredPerson: [PersonInfo] = []
+    private var isSearching = false
+    private var isDepartmentChoosen = false
+
     private weak var coordinator: PeopleFlowCoordinatorProtocol?
     private let networkService: NetworkServiceProtocol
+    //    private let fileManager = FileManager.default
+    private let userDefaults: UserDefaults
 
+    private lazy var dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter
+    }()
 
     // MARK: - Init
-    init(coordinator: PeopleFlowCoordinatorProtocol, networkService: YTNetworkServiceProtocol, fManager: LocalFilesManagerProtocol) {
+    init(coordinator: PeopleFlowCoordinatorProtocol,
+         networkService: NetworkServiceProtocol,
+         userDefaults: UserDefaults = UserDefaults.standard) {
         self.coordinator = coordinator
         self.networkService = networkService
-        self.fManager = fManager
+        self.userDefaults = userDefaults
     }
 
     // MARK: - Public methods
-    func showSecondVC() {
-        coordinator?.pushDetailViewController(withModel: PersonModel)
+    func didTapCell(at indexPath: IndexPath) {
+        let modelAtIndexPath = personModel[indexPath.item]
+        coordinator?.pushDetailViewController(withModel: modelAtIndexPath)
+    }
+
+    func isFirstLaunch() -> Bool {
+        let didLaunchBefore = userDefaults.bool(forKey: "didLaunchBefore")
+        if didLaunchBefore {
+            return false
+        } else {
+            userDefaults.set(true, forKey: "didLaunchBefore")
+            return true
+        }
+    }
+
+    func groupPeopleWithEqualYearDecending() {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        var tempDict: [String: [PersonInfo]] = [:]
+
+        for person in personModel {
+            if let birthDate = dateFormatter.date(from: person.birthday) {
+                let birthYear = Calendar.current.component(.year, from: birthDate)
+                if currentYear > birthYear {
+                    let key = "\(birthYear)"
+                    if tempDict[key] == nil {
+                        tempDict[key] = [person]
+                    } else {
+                        tempDict[key]?.append(person)
+                    }
+                }
+            }
+        }
+        peopleGroupedByYear = tempDict.values.map { $0 }
+
+        ///сортируем ДР по убыванию внутри группы
+        for index in peopleGroupedByYear.indices {
+            peopleGroupedByYear[index].sort { person1, person2 in
+                guard let date1 = dateFormatter.date(from: person1.birthday),
+                      let date2 = dateFormatter.date(from: person2.birthday) else {
+                    return false
+                }
+                return date1 > date2
+            }
+        }
+        ///сортируем группы по убыванию года
+        peopleGroupedByYear.sort { group1, group2 in
+            guard let year1 = Int(group1.first?.birthday.prefix(4) ?? ""),
+                  let year2 = Int(group2.first?.birthday.prefix(4) ?? "") else {
+                return false
+            }
+            return year1 > year2
+        }
+    }
+
+    func sortPeopleByBirthday() {
+        let currentMonth = Calendar.current.component(.month, from: Date())
+        let currentDay = Calendar.current.component(.day, from: Date())
+
+        var futureBirthdaysThisYear: [PersonInfo] = []
+        var nextYearBirthdays: [PersonInfo] = []
+
+        for person in personModel {
+            if let birthDate = dateFormatter.date(from: person.birthday) {
+                let birthMonth = Calendar.current.component(.month, from: birthDate)
+                let birthDay = Calendar.current.component(.day, from: birthDate)
+
+                if currentMonth < birthMonth || (currentMonth == birthMonth && currentDay < birthDay) {
+                    futureBirthdaysThisYear.append(person)
+                } else {
+                    nextYearBirthdays.append(person)
+                }
+            }
+        }
+
+        futureBirthdaysThisYear.sort { person1, person2 in
+            guard let date1 = dateFormatter.date(from: person1.birthday),
+                  let date2 = dateFormatter.date(from: person2.birthday) else {
+                return false
+            }
+            let day1 = Calendar.current.component(.day, from: date1)
+            let day2 = Calendar.current.component(.day, from: date2)
+            let month1 = Calendar.current.component(.month, from: date1)
+            let month2 = Calendar.current.component(.month, from: date2)
+            return (month1, day1) < (month2, day2)
+        }
+
+        nextYearBirthdays.sort { person1, person2 in
+            guard let date1 = dateFormatter.date(from: person1.birthday),
+                  let date2 = dateFormatter.date(from: person2.birthday) else {
+                return false
+            }
+            let day1 = Calendar.current.component(.day, from: date1)
+            let day2 = Calendar.current.component(.day, from: date2)
+            let month1 = Calendar.current.component(.month, from: date1)
+            let month2 = Calendar.current.component(.month, from: date2)
+
+            return (month1, day1) < (month2, day2) || (month1, day1) > (month2, day2) && month1 < month2
+        }
+        peopleSortedByBirthday = [futureBirthdaysThisYear, nextYearBirthdays]
     }
 }
 
 
 // MARK: - DownloadProtocol
-extension DownloadViewModel: DownloadProtocol {
+extension PeopleViewModel: DownloadProtocol {
 
-    func downloadAndSavePeopleInfo(at url: URL) {
-        state = .loading //сразу после того как нажали на download
+    func downloadAndSavePeopleInfo() {
+        state = .loading
 
-        do {
-            try self.networkService.downloadAndSaveVideo(videoIdentifier: videoID, videoURL: url)
-
-            fManager.statusClosure = { [weak self] status in
-                switch status {
-                case .fileExists:
-                    self?.state = .fileExists
-
-                case .loading:
-                    self?.state = .loading
-
-                case .loadedAndSaved:
-                    self?.state = .loadedAndSaved
-
-                case .badURL(alertText: let alertTextForUser):
-                    self?.state = .badURL(alertText: alertTextForUser)
-//  ДОП ЗАДАНИЕ: Ошибка сетевого соединения (timeout, HTTP-статус 5xx и т.п.). В этом случае в уведомлении текст "Не могу обновить данные. Проверь соединение с интернетом"
-//  Ошибка от сервера (HTTP-статус 4xx) или ошибка при парсинге данных. В этом случае в уведомлении текст "Не могу обновить данные. Что-то пошло не так".
-//  Уведомление закрывает собой статус-бар. Оно должно скрываться спустя 3 секунды само, но его можно также убрать тапом.
-
-                default: print("зашел в дефолтный кейс fManagerА")
+        networkService.loadData { [weak self] result in
+            guard let strongSelf = self else {return} /// гарантирует, что код кложуры выполнится и, даже если мы в процессе выполнения кложуры уйдем с экрана, то контроллер высвободится после отработки кложуры!
+            switch result {
+            case .success(let personInfoArr):
+                strongSelf.downloadedPeople = personInfoArr
+                strongSelf.tabFilteredPerson = strongSelf.downloadedPeople ///старт для сортировки
+                
+                if strongSelf.sortState == .sortByBirthdayChoosen {
+                    strongSelf.filterBy(departmentName: strongSelf.departmentBeforeRefresh)
+                    strongSelf.state = .sortedByDay
+                } else if strongSelf.sortState == .groupByYearChoosen {
+                    strongSelf.filterBy(departmentName: strongSelf.departmentBeforeRefresh)
+                    strongSelf.state = .groupedByYear
+                } else {
+                    strongSelf.state = .loadedAndSaved
                 }
+            case .failure(let error):
+                strongSelf.state = .error(alertText: error.localizedDescription)
             }
-        } catch let error as URLError {
-            if error.networkUnavailableReason == .cellular {
-                self.state = .error(alertText: "Сотовая сеть отключена")
-            } else if let reason = error.networkUnavailableReason {
-                self.state = .error(alertText: "Сеть недоступна: \(reason)")
-            }
-            switch error.code {
-            case .notConnectedToInternet:
-                self.state = .error(alertText: "Не могу обновить данные. Проверь соединение с интернетом")
-            default:
-                print("Неизвестная ошибка типа URLError")
-                self.state = .error(alertText: "Некорректный URL")
-            }
-        } catch {
-            print(error.localizedDescription)
         }
     }
 }
 
-// MARK: - EmptyVideoDelegateProtocol
-extension DownloadViewModel: EmptyVideoDelegateProtocol {
+// MARK: - Search & Filter
+extension PeopleViewModel {
 
-    func organizeAlertOfNoVideo() {
-        self.state = .thereIsNoAnyVideo
+    ///cортировка при первом запуске
+    func sortByName(model: inout [PersonInfo]) {
+        model.sort {
+            let fullName1 = $0.firstName + " " + $0.lastName
+            let fullName2 = $1.firstName + " " + $1.lastName
+            return fullName1 < fullName2
+        }
+        sortState = .sortByNameChoosen
+        state = .sortedByAlphabet
     }
 
+    func setGroupByYearState() {
+        sortState = .groupByYearChoosen
+        state = .groupedByYear
+    }
+
+    func sortByDay(model: inout [PersonInfo]) {
+        sortState = .sortByBirthdayChoosen
+        state = .sortedByDay
+    }
+
+    func setInSearchMode(_ searchController: UISearchController) -> Bool {
+        let isActive = searchController.isActive
+        let searchText = searchController.searchBar.text ?? ""
+        return isActive && !searchText.isEmpty
+    }
+
+    func updateSearchController(searchBarText: String?) {
+        isSearching = true
+        if isDepartmentChoosen == true {
+            filteredPerson = tabFilteredPerson
+        } else {
+            filteredPerson = downloadedPeople ///для .all
+        }
+
+        if let searchText = searchBarText?.lowercased(),
+           !searchText.isEmpty {
+            filteredPerson = filteredPerson.filter({ person in //возвращает новую коллекцию
+                let filterByFullName = (person.firstName + " " + person.lastName).lowercased().contains(searchText)
+                let filterByNickname = person.userTag.lowercased().contains(searchText)
+                return filterByFullName || filterByNickname
+            })
+            textInSearchBar = searchText
+        }
+
+        if filteredPerson.isEmpty {
+            state = .nobodyWasFound
+        }
+        else {
+            state = .searchResultNotEmpty
+            if sortState == .groupByYearChoosen {
+                state = .groupedByYear
+            }
+            if sortState == .sortByBirthdayChoosen {
+                state = .sortedByDay
+            }
+        }
+    }
+
+    func filterBy(departmentName: String) {
+        filteredPerson = downloadedPeople
+        isDepartmentChoosen = true
+        departmentBeforeRefresh = departmentName
+
+        if departmentName == "all" {
+            filteredPerson = downloadedPeople
+            isDepartmentChoosen = false
+            updateSearchController(searchBarText: textInSearchBar)
+        }
+        tabFilteredPerson = filteredPerson.filter({ person in
+            let filterByDepartment = person.department.lowercased().contains(departmentName)
+            return filterByDepartment
+        })
+        updateSearchController(searchBarText: textInSearchBar)
+    }
 }
