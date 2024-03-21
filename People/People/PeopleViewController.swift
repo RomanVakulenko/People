@@ -52,6 +52,11 @@ final class PeopleViewController: UIViewController {
         return sortVC
     }()
 
+    private lazy var refreshControl: UIRefreshControl = {
+        let refresh = UIRefreshControl()
+        refresh.addTarget(self, action: #selector(refresh_valueChanged), for: .valueChanged)
+        return refresh
+    }()
 
     private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .medium)
@@ -67,10 +72,11 @@ final class PeopleViewController: UIViewController {
         tableView.register(PersonCell.self, forCellReuseIdentifier: PersonCell.ReuseId)
         tableView.register(CustomHeaderView.self, forHeaderFooterViewReuseIdentifier: CustomHeaderView.ReuseId)
         tableView.backgroundColor = .clear
-        tableView.dataSource = self
-        tableView.delegate = self
         tableView.rowHeight = 84
         tableView.separatorStyle = .none
+        tableView.addSubview(refreshControl)
+        tableView.dataSource = self
+        tableView.delegate = self
         return tableView
     }()
 
@@ -222,6 +228,11 @@ final class PeopleViewController: UIViewController {
         viewModel.downloadAndSavePeopleInfo()
     }
 
+    @objc func refresh_valueChanged(_ sender: UIRefreshControl) {
+        viewModel.downloadAndSavePeopleInfo()
+    }
+
+
     // MARK: - Private methods
     private func bindViewModel() {
         viewModel.closureChangingState = { [weak self] state in
@@ -238,9 +249,10 @@ final class PeopleViewController: UIViewController {
                 case .refreshing:
                     ()
                 case .loadedAndSaved:
-
+                    strongSelf.viewModel.sortByName(model: &strongSelf.viewModel.downloadedPeople)
                     strongSelf.skeletonState = .not
                     strongSelf.tableView.reloadData()
+                    strongSelf.refreshControl.endRefreshing()
 
                 case .searchResultNotEmpty:
                     strongSelf.notFoundView.isHidden = true
@@ -248,8 +260,15 @@ final class PeopleViewController: UIViewController {
                 case .sortedByAlphabet:
                     strongSelf.tableView.reloadData()
 
-                case .sortedByBirthDay: //
+                case .groupedByYear:
+                    strongSelf.viewModel.groupPeopleWithEqualYearDecending()
                     strongSelf.tableView.reloadData()
+                    strongSelf.refreshControl.endRefreshing()
+
+                case .sortedByDay:
+                    strongSelf.viewModel.sortPeopleByBirthday()
+                    strongSelf.tableView.reloadData()
+                    strongSelf.refreshControl.endRefreshing()
 
                 case .nobodyWasFound:
                     strongSelf.setupNotFoundView()
@@ -360,9 +379,10 @@ extension PeopleViewController: UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
         switch viewModel.state {
-        case .sortedByBirthDay:
-            viewModel.groupPeopleByCurrentYear()
+        case .groupedByYear:
             return viewModel.peopleGroupedByYear.count
+        case .sortedByDay:
+            return viewModel.peopleSortedByBirthday.count
         default:
             return 1
         }
@@ -370,10 +390,16 @@ extension PeopleViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         switch viewModel.state {
-        case .sortedByBirthDay:
+        case .groupedByYear:
             guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CustomHeaderView.ReuseId) as? CustomHeaderView else { return nil }
             /// Передаю текст для хедера, начиная со второй секции
-            let text = String(viewModel.peopleGroupedByYear[section].first?.birthday.prefix(4) ?? "")
+            let text = String(viewModel.peopleGroupedByYear[section].first?.birthday.prefix(4) ?? "не смог дату достать")
+            header.setupHeader(text: text)
+            return header
+        case .sortedByDay:
+            guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CustomHeaderView.ReuseId) as? CustomHeaderView else { return nil }
+            let currentYear = Calendar.current.component(.year, from: Date())
+            let text = String(Calendar.current.component(.year, from: Date()) + 1)
             header.setupHeader(text: text)
             return header
         default:
@@ -390,8 +416,10 @@ extension PeopleViewController: UITableViewDataSource {
             return 10
         } else {
             switch viewModel.state {
-            case .sortedByBirthDay:
+            case .groupedByYear:
                 return viewModel.peopleGroupedByYear[section].count
+            case .sortedByDay:
+                return viewModel.peopleSortedByBirthday[section].count
             default:
                 return viewModel.personModel.count
             }
@@ -407,13 +435,18 @@ extension PeopleViewController: UITableViewDataSource {
             return skeletonCell
         } else {
             switch viewModel.state {
-            case .sortedByBirthDay:
+            case .groupedByYear:
                 cell.birthdayLabel.isHidden = false
                 let model = viewModel.peopleGroupedByYear[indexPath.section][indexPath.row]
                 cell.fill(with: model)
                 return cell
-            default:
+            case .sortedByDay:
                 cell.birthdayLabel.isHidden = false
+                let model = viewModel.peopleSortedByBirthday[indexPath.section][indexPath.row]
+                cell.fill(with: model)
+                return cell
+            default:
+                cell.birthdayLabel.isHidden = true
                 let model = viewModel.personModel[indexPath.row]
                 cell.fill(with: model)
                 return cell
@@ -426,7 +459,8 @@ extension PeopleViewController: UITableViewDataSource {
 extension PeopleViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.didTapCell(at: indexPath) //какой индекс передается - фильтрованного массива или полного? корректно ли если нет - тогда надо прописать условие и 2 массива взять - фитльтрованный+сортированный и полный
+        viewModel.didTapCell(at: indexPath)
+        print(indexPath)// индекс передается видимой ячейки и строки - фильтрованного массива или полного? корректно ли если нет - тогда надо прописать условие и 2 массива взять - фитльтрованный+сортированный и полный
     }
 }
 
@@ -464,13 +498,16 @@ extension PeopleViewController: UISearchResultsUpdating, UISearchControllerDeleg
 
 // MARK: - SortViewControllerDelegate
 extension PeopleViewController: SortViewControllerDelegate {
-    func sortByName() {
+    func sortByNameTapped() {
         viewModel.sortByName(model: &viewModel.filteredPerson)
         viewModel.sortByName(model: &viewModel.downloadedPeople)
     }
-    func sortByDate() {
-        viewModel.sortByDate(model: &viewModel.filteredPerson)
-        viewModel.sortByDate(model: &viewModel.downloadedPeople)
+    func groupByYearTapped() {
+        viewModel.setGroupByYearState()
+    }
+    func sortByBirthdayTapped() {
+        viewModel.sortByDay(model: &viewModel.filteredPerson)
+        viewModel.sortByDay(model: &viewModel.downloadedPeople)
     }
 }
 

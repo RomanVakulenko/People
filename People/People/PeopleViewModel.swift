@@ -10,10 +10,11 @@ import UIKit
 protocol DownloadProtocol: AnyObject {
     func downloadAndSavePeopleInfo()
 }
-///для переклчения радиоБаттон о сортировке
+///для переклчения радиоБаттон о сортировке и чтобы запомнить состояние до refresh
 enum SortState {
-    case sortedByName
-    case sortedByDate
+    case sortByNameChoosen
+    case groupByYearChoosen
+    case sortByBirthdayChoosen
 }
 
 
@@ -25,7 +26,8 @@ enum State: Equatable {
     case loadedAndSaved
     case searchResultNotEmpty
     case sortedByAlphabet
-    case sortedByBirthDay
+    case groupedByYear
+    case sortedByDay
     case nobodyWasFound
     case error(alertText: String)
 }
@@ -41,13 +43,15 @@ final class PeopleViewModel {
         }
     }
     var peopleGroupedByYear: [[PersonInfo]] = []
+    var peopleSortedByBirthday: [[PersonInfo]] = []
     var personModel: [PersonInfo] {
         self.isSearching || self.isDepartmentChoosen ? filteredPerson : downloadedPeople
     }
     var tabFilteredPerson: [PersonInfo] = []
     var downloadedPeople: [PersonInfo] = []
     var textInSearchBar = ""
-    var sortState: SortState = .sortedByName
+    var sortState: SortState = .sortByNameChoosen
+    var departmentBeforeRefresh = Department.all.rawValue ///для refresh
 
     // MARK: - Private properties
     var filteredPerson: [PersonInfo] = []
@@ -58,6 +62,13 @@ final class PeopleViewModel {
     private let networkService: NetworkServiceProtocol
     //    private let fileManager = FileManager.default
     private let userDefaults: UserDefaults
+
+    private lazy var dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter
+    }()
 
     // MARK: - Init
     init(coordinator: PeopleFlowCoordinatorProtocol,
@@ -84,12 +95,9 @@ final class PeopleViewModel {
         }
     }
 
-    func groupPeopleByCurrentYear() {
+    func groupPeopleWithEqualYearDecending() {
         let currentYear = Calendar.current.component(.year, from: Date())
         var tempDict: [String: [PersonInfo]] = [:]
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
 
         for person in personModel {
             if let birthDate = dateFormatter.date(from: person.birthday) {
@@ -104,10 +112,9 @@ final class PeopleViewModel {
                 }
             }
         }
-
         peopleGroupedByYear = tempDict.values.map { $0 }
 
-        ///сортируем ДР по убыванию
+        ///сортируем ДР по убыванию внутри группы
         for index in peopleGroupedByYear.indices {
             peopleGroupedByYear[index].sort { person1, person2 in
                 guard let date1 = dateFormatter.date(from: person1.birthday),
@@ -127,7 +134,52 @@ final class PeopleViewModel {
         }
     }
 
+    func sortPeopleByBirthday() {
+        let currentMonth = Calendar.current.component(.month, from: Date())
+        let currentDay = Calendar.current.component(.day, from: Date())
 
+        var futureBirthdaysThisYear: [PersonInfo] = []
+        var nextYearBirthdays: [PersonInfo] = []
+
+        for person in personModel {
+            if let birthDate = dateFormatter.date(from: person.birthday) {
+                let birthMonth = Calendar.current.component(.month, from: birthDate)
+                let birthDay = Calendar.current.component(.day, from: birthDate)
+
+                if currentMonth < birthMonth || (currentMonth == birthMonth && currentDay < birthDay) {
+                    futureBirthdaysThisYear.append(person)
+                } else {
+                    nextYearBirthdays.append(person)
+                }
+            }
+        }
+
+        futureBirthdaysThisYear.sort { person1, person2 in
+            guard let date1 = dateFormatter.date(from: person1.birthday),
+                  let date2 = dateFormatter.date(from: person2.birthday) else {
+                return false
+            }
+            let day1 = Calendar.current.component(.day, from: date1)
+            let day2 = Calendar.current.component(.day, from: date2)
+            let month1 = Calendar.current.component(.month, from: date1)
+            let month2 = Calendar.current.component(.month, from: date2)
+            return (month1, day1) < (month2, day2)
+        }
+
+        nextYearBirthdays.sort { person1, person2 in
+            guard let date1 = dateFormatter.date(from: person1.birthday),
+                  let date2 = dateFormatter.date(from: person2.birthday) else {
+                return false
+            }
+            let day1 = Calendar.current.component(.day, from: date1)
+            let day2 = Calendar.current.component(.day, from: date2)
+            let month1 = Calendar.current.component(.month, from: date1)
+            let month2 = Calendar.current.component(.month, from: date2)
+
+            return (month1, day1) < (month2, day2) || (month1, day1) > (month2, day2) && month1 < month2
+        }
+        peopleSortedByBirthday = [futureBirthdaysThisYear, nextYearBirthdays]
+    }
 }
 
 
@@ -138,13 +190,21 @@ extension PeopleViewModel: DownloadProtocol {
         state = .loading
 
         networkService.loadData { [weak self] result in
-            guard let strongSelf = self else {return} // гарантирует, что код кложуры выполнится и, даже если мы в процессе выполнения кложуры уйдем с экрана, то контроллер высвободится после отработки кложуры!
+            guard let strongSelf = self else {return} /// гарантирует, что код кложуры выполнится и, даже если мы в процессе выполнения кложуры уйдем с экрана, то контроллер высвободится после отработки кложуры!
             switch result {
             case .success(let personInfoArr):
                 strongSelf.downloadedPeople = personInfoArr
-                strongSelf.sortByName(model: &strongSelf.downloadedPeople)
-                strongSelf.tabFilteredPerson = strongSelf.downloadedPeople ///чтобы был наполнен для сортировки
-                strongSelf.state = .loadedAndSaved
+                strongSelf.tabFilteredPerson = strongSelf.downloadedPeople ///старт для сортировки
+                
+                if strongSelf.sortState == .sortByBirthdayChoosen {
+                    strongSelf.filterBy(departmentName: strongSelf.departmentBeforeRefresh)
+                    strongSelf.state = .sortedByDay
+                } else if strongSelf.sortState == .groupByYearChoosen {
+                    strongSelf.filterBy(departmentName: strongSelf.departmentBeforeRefresh)
+                    strongSelf.state = .groupedByYear
+                } else {
+                    strongSelf.state = .loadedAndSaved
+                }
             case .failure(let error):
                 strongSelf.state = .error(alertText: error.localizedDescription)
             }
@@ -155,19 +215,25 @@ extension PeopleViewModel: DownloadProtocol {
 // MARK: - Search & Filter
 extension PeopleViewModel {
 
+    ///cортировка при первом запуске
     func sortByName(model: inout [PersonInfo]) {
-        model.sort { //Метод sorted() возвращает отсортированную копию массива, в то время как sort() изменяет исходный массив.
+        model.sort {
             let fullName1 = $0.firstName + " " + $0.lastName
             let fullName2 = $1.firstName + " " + $1.lastName
             return fullName1 < fullName2
         }
-        sortState = .sortedByName
+        sortState = .sortByNameChoosen
         state = .sortedByAlphabet
     }
 
-    func sortByDate(model: inout [PersonInfo]) {
-        sortState = .sortedByDate
-        state = .sortedByBirthDay
+    func setGroupByYearState() {
+        sortState = .groupByYearChoosen
+        state = .groupedByYear
+    }
+
+    func sortByDay(model: inout [PersonInfo]) {
+        sortState = .sortByBirthdayChoosen
+        state = .sortedByDay
     }
 
     func setInSearchMode(_ searchController: UISearchController) -> Bool {
@@ -199,8 +265,11 @@ extension PeopleViewModel {
         }
         else {
             state = .searchResultNotEmpty
-            if sortState == .sortedByDate {
-                state = .sortedByBirthDay
+            if sortState == .groupByYearChoosen {
+                state = .groupedByYear
+            }
+            if sortState == .sortByBirthdayChoosen {
+                state = .sortedByDay
             }
         }
     }
@@ -208,6 +277,7 @@ extension PeopleViewModel {
     func filterBy(departmentName: String) {
         filteredPerson = downloadedPeople
         isDepartmentChoosen = true
+        departmentBeforeRefresh = departmentName
 
         if departmentName == "all" {
             filteredPerson = downloadedPeople
@@ -218,7 +288,6 @@ extension PeopleViewModel {
             let filterByDepartment = person.department.lowercased().contains(departmentName)
             return filterByDepartment
         })
-        print("\(departmentName) = \(tabFilteredPerson.count)")
         updateSearchController(searchBarText: textInSearchBar)
     }
 }
