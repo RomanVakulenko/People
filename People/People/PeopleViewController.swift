@@ -12,16 +12,46 @@ enum SkeletonState {
     case not
 }
 
+enum Department: String {
+    case all, design, analytics, management, android, ios, qa, back_office, frontEnd, hr, pr, backend, support
+
+    static let dictionary: [Int: Department] = [
+        0: .all,
+        1: .design,
+        2: .analytics,
+        3: .management,
+        4: .android,
+        5: .ios,
+        6: .qa,
+        7: .back_office,
+        8: .frontEnd,
+        9: .hr,
+        10: .pr,
+        11: .backend,
+        12: .support
+    ]
+}
+
+
 final class PeopleViewController: UIViewController {
 
     // MARK: - Public properties
     let viewModel: PeopleViewModel
-    let departments = ["Все", "Designers", "Analysts", "Managers", "Android", "iOS", "QA", "Back_office", "Frontenders", "HR", "PR", "Backenders", "Support"]
-    var selectedIndexPath = IndexPath(item: 0, section: 0)
 
+    // MARK: - Private properties
+    private let departments = ["Все", "Designers", "Analysts", "Managers", "Android", "iOS", "QA", "Back_office", "Frontenders", "HR", "PR", "Backenders", "Support"]
+    private var selectedIndexPath = IndexPath(item: 0, section: 0)
+    private var skeletonState: SkeletonState = .skeleton
 
     // MARK: - SubTypes
     private let searchController = UISearchController(searchResultsController: nil)
+
+    private lazy var sortController: UIViewController = {
+        let sortVC = SortViewController()
+        sortVC.delegate = self
+        return sortVC
+    }()
+
 
     private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .medium)
@@ -31,10 +61,11 @@ final class PeopleViewController: UIViewController {
     }()
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView.init(frame: .zero, style: .plain)
+        let tableView = UITableView.init(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(SkeletonCell.self, forCellReuseIdentifier: SkeletonCell.ReuseId)
         tableView.register(PersonCell.self, forCellReuseIdentifier: PersonCell.ReuseId)
+        tableView.register(CustomHeaderView.self, forHeaderFooterViewReuseIdentifier: CustomHeaderView.ReuseId)
         tableView.backgroundColor = .clear
         tableView.dataSource = self
         tableView.delegate = self
@@ -45,45 +76,50 @@ final class PeopleViewController: UIViewController {
 
     private lazy var errorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
         return view
     }()
 
     private lazy var errorImg: UIImageView = {
         var imageView = UIImageView()
-        imageView.image = UIImage(named: "errorPic")
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = UIImage(named: "errorPic")
         return imageView
     }()
 
-    private lazy var boldLabel: UILabel = {
+    private lazy var errorBoldLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.textColor = UIColor(red: 0.02, green: 0.02, blue: 0.063, alpha: 1)
         label.font = UIFont(name: "Inter-SemiBold", size: 17)
         label.font = UIFont.boldSystemFont(ofSize: 17)
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.07
-        label.attributedText = NSMutableAttributedString(string: "Какой-то сверхразум все сломал", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.attributedText = NSMutableAttributedString(
+            string: "Какой-то сверхразум все сломал",
+            attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
         return label
     }()
 
-    private lazy var regularLabel: UILabel = {
+    private lazy var errorRegularLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.textColor = UIColor(red: 0.591, green: 0.591, blue: 0.609, alpha: 1)
         label.font = UIFont(name: "Inter-Regular", size: 16)
         var paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineHeightMultiple = 1.03
-        label.attributedText = NSMutableAttributedString(string: "Постараемся быстро починить", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.attributedText = NSMutableAttributedString(
+            string: "Постараемся быстро починить",
+            attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
         return label
     }()
 
-    private lazy var tryAgainBtn: UIButton = {
+    private lazy var errorTryAgainBtn: UIButton = {
         let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
         btn.backgroundColor = .clear
         btn.setTitleColor(UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1), for: .normal)
         btn.titleLabel?.font = UIFont(name: "Inter-SemiBold", size: 16)
@@ -91,9 +127,10 @@ final class PeopleViewController: UIViewController {
         btn.titleLabel?.textAlignment = .center
         let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.lineHeightMultiple = 1.03
-        let attributedString = NSMutableAttributedString(string: "Попробовать снова", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        let attributedString = NSMutableAttributedString(
+            string: "Попробовать снова",
+            attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
         btn.setAttributedTitle(attributedString, for: .normal)
-        btn.translatesAutoresizingMaskIntoConstraints = false
         btn.addTarget(self, action: #selector(tryAgainBtn_touchUpInside(_:)), for: .touchUpInside)
         return btn
     }()
@@ -115,7 +152,49 @@ final class PeopleViewController: UIViewController {
         return collectionView
     }()
 
-    private var skeletonState: SkeletonState = .skeleton
+    private lazy var notFoundView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        return view
+    }()
+
+    private lazy var notFoundImg: UIImageView = {
+        var imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = UIImage(named: "lense")
+        return imageView
+    }()
+
+    private lazy var notFoundBoldLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = UIColor(red: 0.02, green: 0.02, blue: 0.063, alpha: 1)
+        label.font = UIFont(name: "Inter-SemiBold", size: 17)
+        label.font = UIFont.boldSystemFont(ofSize: 17)
+        var paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.07
+        label.attributedText = NSMutableAttributedString(
+            string: "Мы никого не нашли",
+            attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        return label
+    }()
+
+    private lazy var notFoundRegularLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.textColor = UIColor(red: 0.591, green: 0.591, blue: 0.609, alpha: 1)
+        label.font = UIFont(name: "Inter-Regular", size: 16)
+        var paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.03
+        label.attributedText = NSMutableAttributedString(
+            string: "Попробуй скорректировать запрос",
+            attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
 
     // MARK: - Init
     init(viewModel: PeopleViewModel) {
@@ -148,24 +227,36 @@ final class PeopleViewController: UIViewController {
         viewModel.closureChangingState = { [weak self] state in
             guard let strongSelf = self else { return }
 
-            switch state {
-            case .none:
-                ()
-            case .loading:
-                ()
-            case .refreshing:
-                ()
-            case .loadedAndSaved:
-                strongSelf.skeletonState = .not
-                strongSelf.tableView.reloadData()
-            case .allPeople:
-                ()
-            case .sortByAlphabet:
-                ()
-            case .sortByBirthDay:
-                ()
-            case .error(alertText: _):
-                strongSelf.setupErrorView()
+            DispatchQueue.main.async {
+                switch state {
+                case .none:
+                    ()
+                case .loading:
+                    strongSelf.errorView.isHidden = true
+                    strongSelf.searchController.searchBar.isHidden = false
+
+                case .refreshing:
+                    ()
+                case .loadedAndSaved:
+
+                    strongSelf.skeletonState = .not
+                    strongSelf.tableView.reloadData()
+
+                case .searchResultNotEmpty:
+                    strongSelf.notFoundView.isHidden = true
+                    
+                case .sortedByAlphabet:
+                    strongSelf.tableView.reloadData()
+
+                case .sortedByBirthDay: //
+                    strongSelf.tableView.reloadData()
+
+                case .nobodyWasFound:
+                    strongSelf.setupNotFoundView()
+
+                case .error(alertText: _):
+                    strongSelf.setupErrorView()
+                }
             }
         }
     }
@@ -183,7 +274,7 @@ final class PeopleViewController: UIViewController {
            searchController.delegate = self
            searchController.searchBar.delegate = self
            searchController.searchBar.showsBookmarkButton = true
-           searchController.searchBar.setImage(UIImage(systemName: "line.horizontal.3.decrease"), for: .bookmark, state: .normal)
+           searchController.searchBar.setImage(UIImage(named: "sortBtn"), for: .bookmark, state: .normal)
        }
 
     private func setupFilterAsCollectionAndTableView() {
@@ -198,7 +289,7 @@ final class PeopleViewController: UIViewController {
             spinner.bottomAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 8),
             spinner.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
 
-            tableView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 16),
+            tableView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -206,7 +297,7 @@ final class PeopleViewController: UIViewController {
     }
 
     private func setupErrorView() {
-        [errorImg, boldLabel, regularLabel, tryAgainBtn].forEach{ errorView.addSubview($0) }
+        [errorImg, errorBoldLabel, errorRegularLabel, errorTryAgainBtn].forEach{ errorView.addSubview($0) }
         view.addSubview(errorView)
         errorView.isHidden = false
         searchController.searchBar.isHidden = true
@@ -222,17 +313,43 @@ final class PeopleViewController: UIViewController {
             errorImg.heightAnchor.constraint(equalToConstant: 56),
             errorImg.widthAnchor.constraint(equalToConstant: 56),
 
-            boldLabel.topAnchor.constraint(equalTo: errorImg.bottomAnchor, constant: 8),
-            boldLabel.centerXAnchor.constraint(equalTo: errorView.centerXAnchor),
-            boldLabel.heightAnchor.constraint(equalToConstant: 22),
+            errorBoldLabel.topAnchor.constraint(equalTo: errorImg.bottomAnchor, constant: 8),
+            errorBoldLabel.centerXAnchor.constraint(equalTo: errorImg.centerXAnchor),
+            errorBoldLabel.heightAnchor.constraint(equalToConstant: 22),
 
-            regularLabel.topAnchor.constraint(equalTo: boldLabel.bottomAnchor, constant: 12),
-            regularLabel.centerXAnchor.constraint(equalTo: errorView.centerXAnchor),
-            regularLabel.heightAnchor.constraint(equalToConstant: 20),
+            errorRegularLabel.topAnchor.constraint(equalTo: errorBoldLabel.bottomAnchor, constant: 12),
+            errorRegularLabel.centerXAnchor.constraint(equalTo: errorImg.centerXAnchor),
+            errorRegularLabel.heightAnchor.constraint(equalToConstant: 20),
 
-            tryAgainBtn.topAnchor.constraint(equalTo: regularLabel.bottomAnchor, constant: 12),
-            tryAgainBtn.centerXAnchor.constraint(equalTo: errorView.centerXAnchor),
-            tryAgainBtn.heightAnchor.constraint(equalToConstant: 20)
+            errorTryAgainBtn.topAnchor.constraint(equalTo: errorRegularLabel.bottomAnchor, constant: 12),
+            errorTryAgainBtn.centerXAnchor.constraint(equalTo: errorImg.centerXAnchor),
+            errorTryAgainBtn.heightAnchor.constraint(equalToConstant: 20)
+        ])
+    }
+
+    private func setupNotFoundView() {
+        [notFoundImg, notFoundBoldLabel, notFoundRegularLabel].forEach{ notFoundView.addSubview($0) }
+        view.addSubview(notFoundView)
+        notFoundView.isHidden = false
+
+        NSLayoutConstraint.activate([
+            notFoundView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 52),
+            notFoundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            notFoundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            notFoundView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+
+            notFoundImg.topAnchor.constraint(equalTo: view.topAnchor, constant: 256),
+            notFoundImg.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            notFoundImg.heightAnchor.constraint(equalToConstant: 56),
+            notFoundImg.widthAnchor.constraint(equalToConstant: 56),
+
+            notFoundBoldLabel.topAnchor.constraint(equalTo: notFoundImg.bottomAnchor, constant: 8),
+            notFoundBoldLabel.centerXAnchor.constraint(equalTo: notFoundImg.centerXAnchor),
+            notFoundBoldLabel.heightAnchor.constraint(equalToConstant: 22),
+
+            notFoundRegularLabel.topAnchor.constraint(equalTo: notFoundBoldLabel.bottomAnchor, constant: 12),
+            notFoundRegularLabel.centerXAnchor.constraint(equalTo: notFoundImg.centerXAnchor),
+            notFoundRegularLabel.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
 
@@ -241,11 +358,43 @@ final class PeopleViewController: UIViewController {
 // MARK: - UITableViewDataSource
 extension PeopleViewController: UITableViewDataSource {
 
+    func numberOfSections(in tableView: UITableView) -> Int {
+        switch viewModel.state {
+        case .sortedByBirthDay:
+            viewModel.groupPeopleByCurrentYear()
+            return viewModel.peopleGroupedByYear.count
+        default:
+            return 1
+        }
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        switch viewModel.state {
+        case .sortedByBirthDay:
+            guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CustomHeaderView.ReuseId) as? CustomHeaderView else { return nil }
+            /// Передаю текст для хедера, начиная со второй секции
+            let text = String(viewModel.peopleGroupedByYear[section].first?.birthday.prefix(4) ?? "")
+            header.setupHeader(text: text)
+            return header
+        default:
+            return nil
+        }
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return section == 0 ? 0 : 48 ///-20 some space between cell.bottom and header
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if viewModel.state != .loadedAndSaved {
+        if skeletonState == .skeleton {
             return 10
         } else {
-            return self.viewModel.personModel.count
+            switch viewModel.state {
+            case .sortedByBirthDay:
+                return viewModel.peopleGroupedByYear[section].count
+            default:
+                return viewModel.personModel.count
+            }
         }
     }
 
@@ -257,9 +406,18 @@ extension PeopleViewController: UITableViewDataSource {
         if skeletonState == .skeleton {
             return skeletonCell
         } else {
-            let model = viewModel.personModel[indexPath.item]
-            cell.fill(with: model)
-            return cell
+            switch viewModel.state {
+            case .sortedByBirthDay:
+                cell.birthdayLabel.isHidden = false
+                let model = viewModel.peopleGroupedByYear[indexPath.section][indexPath.row]
+                cell.fill(with: model)
+                return cell
+            default:
+                cell.birthdayLabel.isHidden = false
+                let model = viewModel.personModel[indexPath.row]
+                cell.fill(with: model)
+                return cell
+            }
         }
     }
 }
@@ -268,13 +426,13 @@ extension PeopleViewController: UITableViewDataSource {
 extension PeopleViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.didTapCell(at: indexPath)
+        viewModel.didTapCell(at: indexPath) //какой индекс передается - фильтрованного массива или полного? корректно ли если нет - тогда надо прописать условие и 2 массива взять - фитльтрованный+сортированный и полный
     }
 }
 
 
 // MARK: - Search Controller Functions
-extension PeopleViewController: UISearchResultsUpdating, UISearchControllerDelegate, UISearchBarDelegate  {
+extension PeopleViewController: UISearchResultsUpdating, UISearchControllerDelegate, UISearchBarDelegate, UISheetPresentationControllerDelegate {
 
     func updateSearchResults(for searchController: UISearchController) {
         self.viewModel.setInSearchMode(searchController)
@@ -282,8 +440,37 @@ extension PeopleViewController: UISearchResultsUpdating, UISearchControllerDeleg
         tableView.reloadData()
     }
 
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self.viewModel.updateSearchController(searchBarText: nil)
+        self.viewModel.textInSearchBar = ""
+        self.viewModel.state = .searchResultNotEmpty
+        tableView.reloadData()
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        self.viewModel.updateSearchController(searchBarText: searchText)
+        self.viewModel.textInSearchBar = ""
+        tableView.reloadData()
+    }
+
     func searchBarBookmarkButtonClicked(_ searchBar: UISearchBar) {
-        print("Search bar button called!") //тут можно вызвать фильтр
+        let sheet = UISheetPresentationController(
+            presentedViewController: sortController, presenting: self)
+        sheet.prefersGrabberVisible = true
+        sheet.prefersEdgeAttachedInCompactHeight = true
+        present(sortController, animated: true, completion: nil)
+    }
+}
+
+// MARK: - SortViewControllerDelegate
+extension PeopleViewController: SortViewControllerDelegate {
+    func sortByName() {
+        viewModel.sortByName(model: &viewModel.filteredPerson)
+        viewModel.sortByName(model: &viewModel.downloadedPeople)
+    }
+    func sortByDate() {
+        viewModel.sortByDate(model: &viewModel.filteredPerson)
+        viewModel.sortByDate(model: &viewModel.downloadedPeople)
     }
 }
 
@@ -293,7 +480,7 @@ extension PeopleViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let text = departments[indexPath.item]
+        let text = self.departments[indexPath.item]
         let font = UIFont.systemFont(ofSize: 20)
         let textAttributes = [NSAttributedString.Key.font: font]
         let textSize = (text as NSString).size(withAttributes: textAttributes)
@@ -312,16 +499,16 @@ extension PeopleViewController: UICollectionViewDelegateFlowLayout {
 extension PeopleViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        departments.count
+        self.departments.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCell.ReuseId,for: indexPath) as? FilterCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCell.ReuseId,for: indexPath) as? FilterCell  else { return UICollectionViewCell() }
 
         cell.setupFilter(text: self.departments[indexPath.item])
 
-        //Подсветить выбранную ячейку
+        ///Подсветить выбранную ячейку
         if indexPath == selectedIndexPath {
             cell.highlight(text: self.departments[indexPath.item])
         } else {
@@ -333,7 +520,8 @@ extension PeopleViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         self.selectedIndexPath = indexPath
         collectionView.reloadData()
-        //написать логику фильтрации
+        self.viewModel.filterBy(departmentName: Department.dictionary[indexPath.item]?.rawValue ?? "")
+        tableView.reloadData()
     }
 
 }

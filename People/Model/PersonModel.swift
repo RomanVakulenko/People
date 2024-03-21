@@ -9,7 +9,7 @@ import Foundation
 
 
 struct PersonModel: Codable {
-    let items: [PersonInfo]
+    var items: [PersonInfo]
 }
 
 struct PersonInfo: Codable {

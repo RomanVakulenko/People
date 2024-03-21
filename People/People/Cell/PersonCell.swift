@@ -10,6 +10,16 @@ import UIKit
 final class PersonCell: UITableViewCell {
 
     // MARK: - SubTypes
+    lazy var birthdayLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .right
+        label.textColor = UIColor(red: 0.333, green: 0.333, blue: 0.361, alpha: 1)
+        label.font = UIFont(name: "Inter-Regular", size: 15)
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     private lazy var avatarView: UIImageView = {
         var imageView = UIImageView()
         imageView.layer.cornerRadius = 35
@@ -57,14 +67,12 @@ final class PersonCell: UITableViewCell {
         return label
     }()
 
-    private lazy var birthdayLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .right
-        label.textColor = UIColor(red: 0.333, green: 0.333, blue: 0.361, alpha: 1)
-        label.font = UIFont(name: "Inter-Regular", size: 15)
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.timeZone = TimeZone(secondsFromGMT: 3 * 3600)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
     }()
 
 
@@ -79,17 +87,36 @@ final class PersonCell: UITableViewCell {
         super.init(coder: coder)
     }
 
+//    override func prepareForReuse() {
+//        super.prepareForReuse()
+//        avatarView.image = nil
+//        nameLabel.text = nil
+//        nickNameLabel.text = nil
+//        positionLabel.text = nil
+//        birthdayLabel.text = nil
+//    }
 
     // MARK: - Public methods
     func fill(with model: PersonInfo) {
-        avatarView.image = UIImage(named: model.avatarUrl) //cкачивать, сохранять и показывать
+        avatarView.image = UIImage(named: model.avatarUrl)
         nameLabel.text = model.firstName + " " + model.lastName
         nickNameLabel.text = model.userTag.lowercased()
         positionLabel.text = model.position
-        birthdayLabel.text = model.birthday
 
-        layoutIfNeeded()
+        guard let date = dateFormatter.date(from: model.birthday) else { return }
+
+        let calendar = Calendar(identifier: .gregorian)
+        let components = calendar.dateComponents([.day, .month, .year], from: date)
+
+        if let day = components.day, let month = components.month, let year = components.year {
+            let monthSymbols = dateFormatter.shortMonthSymbols
+            if let monthSymbol = monthSymbols?[month - 1] {
+                let dateStringFormatted = "\(day) \(String(monthSymbol.prefix(3))) \(year)"
+                birthdayLabel.text = String(dateStringFormatted.prefix(6))
+            }
+        }
     }
+
 
 
     // MARK: - Private methods
@@ -98,7 +125,6 @@ final class PersonCell: UITableViewCell {
     }
 
     private func setupLayout() {
-
         NSLayoutConstraint.activate([
             avatarView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             avatarView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
@@ -113,7 +139,7 @@ final class PersonCell: UITableViewCell {
             positionLabel.heightAnchor.constraint(equalToConstant: 20),
             positionLabel.trailingAnchor.constraint(equalTo: birthdayLabel.leadingAnchor, constant: -48),
 
-            birthdayLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            birthdayLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant:  -16),
             birthdayLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             birthdayLabel.heightAnchor.constraint(equalToConstant: 48),
             birthdayLabel.widthAnchor.constraint(equalToConstant: 64)

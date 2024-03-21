@@ -8,7 +8,7 @@
 import UIKit
 
 final class DetailViewController: UIViewController {
-
+//https://stackoverflow.com/questions/27259824/calling-a-phone-number-in-swift - звонок
 
     let viewModel: DetailViewModel
 
