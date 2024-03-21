@@ -9,15 +9,16 @@ import UIKit
 
 
 protocol SortViewControllerDelegate: AnyObject {
-    func sortByName()
-    func sortByDate()
+    func sortByNameTapped()
+    func groupByYearTapped()
+    func sortByBirthdayTapped()
 }
 
 class SortViewController: UIViewController {
 
     // MARK: - Public properties
     weak var delegate: SortViewControllerDelegate?
-    var sortState: SortState = .sortedByName
+    var sortState: SortState = .sortByNameChoosen
 
     // MARK: - SubTypes
     private lazy var titleLabel: UILabel = {
@@ -44,28 +45,6 @@ class SortViewController: UIViewController {
         return btn
     }()
 
-    private lazy var radioBntByName: UIButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.backgroundColor = .clear
-        btn.setTitleColor(UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1), for: .normal)
-        btn.addTarget(self, action: #selector(radioBnt_touchUpInside(_:)), for: .touchUpInside)
-        btn.setImage(UIImage(named: "radio_off"), for: .normal)
-        btn.setImage(UIImage(named: "radio_on"), for: .selected)
-        return btn
-    }()
-
-    private lazy var radioBntByDate: UIButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.backgroundColor = .clear
-        btn.setTitleColor(UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1), for: .normal)
-        btn.addTarget(self, action: #selector(radioBnt_touchUpInside(_:)), for: .touchUpInside)
-        btn.setImage(UIImage(named: "radio_off"), for: .normal)
-        btn.setImage(UIImage(named: "radio_on"), for: .selected)
-        return btn
-    }()
-
     private lazy var sortLblName: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +57,18 @@ class SortViewController: UIViewController {
         return label
     }()
 
-    private lazy var sortLblDay: UILabel = {
+    private lazy var radioBtnByName: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.backgroundColor = .clear
+        btn.setTitleColor(UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1), for: .normal)
+        btn.addTarget(self, action: #selector(radioBnt_touchUpInside(_:)), for: .touchUpInside)
+        btn.setImage(UIImage(named: "radio_off"), for: .normal)
+        btn.setImage(UIImage(named: "radio_on"), for: .selected)
+        return btn
+    }()
+
+    private lazy var sortLblBirthDay: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
@@ -88,6 +78,40 @@ class SortViewController: UIViewController {
         paragraphStyle.lineHeightMultiple = 1.03
         label.attributedText = NSMutableAttributedString(string: "По дню рождения", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
         return label
+    }()
+
+    private lazy var radioBntByBirthday: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.backgroundColor = .clear
+        btn.setTitleColor(UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1), for: .normal)
+        btn.addTarget(self, action: #selector(radioBnt_touchUpInside(_:)), for: .touchUpInside)
+        btn.setImage(UIImage(named: "radio_off"), for: .normal)
+        btn.setImage(UIImage(named: "radio_on"), for: .selected)
+        return btn
+    }()
+
+    private lazy var sortLblGroupByYear: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        label.textColor = UIColor(red: 0.02, green: 0.02, blue: 0.063, alpha: 1)
+        label.font = UIFont(name: "Inter-Medium", size: 16)
+        var paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineHeightMultiple = 1.03
+        label.attributedText = NSMutableAttributedString(string: "Группировка по году, убывание", attributes: [NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        return label
+    }()
+
+    private lazy var radioBtnGroupByYear: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.backgroundColor = .clear
+        btn.setTitleColor(UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1), for: .normal)
+        btn.addTarget(self, action: #selector(radioBnt_touchUpInside(_:)), for: .touchUpInside)
+        btn.setImage(UIImage(named: "radio_off"), for: .normal)
+        btn.setImage(UIImage(named: "radio_on"), for: .selected)
+        return btn
     }()
 
     // MARK: - Lifecycle
@@ -101,17 +125,25 @@ class SortViewController: UIViewController {
 
     // MARK: - Actions
     @objc func radioBnt_touchUpInside(_ sender: UIButton) {
-        if sender == radioBntByName {
-            radioBntByName.isSelected = true
-            radioBntByDate.isSelected = false
-            delegate?.sortByName()
-            backBtn_touchUpInside(sender)
-        } else {
-            radioBntByName.isSelected = false
-            radioBntByDate.isSelected = true
-            delegate?.sortByDate()
-            backBtn_touchUpInside(sender)
+        if sender == radioBtnByName {
+            radioBtnByName.isSelected = true
+            radioBtnGroupByYear.isSelected = false
+            radioBntByBirthday.isSelected = false
+            delegate?.sortByNameTapped()
         }
+        if sender == radioBtnGroupByYear {
+            radioBtnByName.isSelected = false
+            radioBtnGroupByYear.isSelected = true
+            radioBntByBirthday.isSelected = false
+            delegate?.groupByYearTapped()
+        }
+        if sender == radioBntByBirthday {
+            radioBtnByName.isSelected = false
+            radioBtnGroupByYear.isSelected = false
+            radioBntByBirthday.isSelected = true
+            delegate?.sortByBirthdayTapped()
+        }
+        backBtn_touchUpInside(sender)
     }
 
     @objc func backBtn_touchUpInside(_ sender: UIButton)  {
@@ -121,17 +153,25 @@ class SortViewController: UIViewController {
     // MARK: - Private methods
 
     private func setSortBtnDueToState() {
-        if sortState == .sortedByName {
-            radioBntByName.isSelected = true
-            radioBntByDate.isSelected = false
-        } else {
-            radioBntByName.isSelected = false
-            radioBntByDate.isSelected = true
+        if sortState == .sortByNameChoosen {
+            radioBtnByName.isSelected = true
+            radioBtnGroupByYear.isSelected = false
+            radioBntByBirthday.isSelected = false
+        }
+        if sortState == .groupByYearChoosen {
+            radioBtnByName.isSelected = false
+            radioBtnGroupByYear.isSelected = true
+            radioBntByBirthday.isSelected = false
+        }
+        if sortState == .sortByBirthdayChoosen {
+            radioBtnByName.isSelected = false
+            radioBtnGroupByYear.isSelected = false
+            radioBntByBirthday.isSelected = true
         }
     }
 
     private func setupView() {
-        [titleLabel, backBtn, radioBntByName, radioBntByDate, sortLblName, sortLblDay].forEach { view.addSubview($0) }
+        [titleLabel, backBtn, radioBtnByName, radioBtnGroupByYear, sortLblName, sortLblGroupByYear, sortLblBirthDay, radioBntByBirthday].forEach { view.addSubview($0) }
     }
 
     private func setupLayout() {
@@ -145,23 +185,33 @@ class SortViewController: UIViewController {
             backBtn.heightAnchor.constraint(equalToConstant: 24),
             backBtn.widthAnchor.constraint(equalToConstant: 24),
 
-            radioBntByName.topAnchor.constraint(equalTo: view.topAnchor, constant: 84),
-            radioBntByName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            radioBntByName.heightAnchor.constraint(equalToConstant: 24),
-            radioBntByName.widthAnchor.constraint(equalToConstant: 24),
+            radioBtnByName.topAnchor.constraint(equalTo: view.topAnchor, constant: 84),
+            radioBtnByName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            radioBtnByName.heightAnchor.constraint(equalToConstant: 24),
+            radioBtnByName.widthAnchor.constraint(equalToConstant: 24),
 
-            sortLblName.centerYAnchor.constraint(equalTo: radioBntByName.centerYAnchor, constant: -1),
-            sortLblName.leadingAnchor.constraint(equalTo: radioBntByName.trailingAnchor, constant: 20),
+            sortLblName.centerYAnchor.constraint(equalTo: radioBtnByName.centerYAnchor, constant: -1),
+            sortLblName.leadingAnchor.constraint(equalTo: radioBtnByName.trailingAnchor, constant: 20),
             sortLblName.heightAnchor.constraint(equalToConstant: 20),
 
-            radioBntByDate.topAnchor.constraint(equalTo: radioBntByName.topAnchor, constant: 36),
-            radioBntByDate.leadingAnchor.constraint(equalTo: radioBntByName.leadingAnchor),
-            radioBntByDate.heightAnchor.constraint(equalToConstant: 24),
-            radioBntByDate.widthAnchor.constraint(equalToConstant: 24),
+            radioBtnGroupByYear.topAnchor.constraint(equalTo: radioBtnByName.topAnchor, constant: 36),
+            radioBtnGroupByYear.leadingAnchor.constraint(equalTo: radioBtnByName.leadingAnchor),
+            radioBtnGroupByYear.heightAnchor.constraint(equalToConstant: 24),
+            radioBtnGroupByYear.widthAnchor.constraint(equalToConstant: 24),
 
-            sortLblDay.centerYAnchor.constraint(equalTo: radioBntByDate.centerYAnchor, constant: -1),
-            sortLblDay.leadingAnchor.constraint(equalTo: radioBntByDate.trailingAnchor, constant: 20),
-            sortLblDay.heightAnchor.constraint(equalToConstant: 20),
+            sortLblGroupByYear.centerYAnchor.constraint(equalTo: radioBtnGroupByYear.centerYAnchor, constant: -1),
+            sortLblGroupByYear.leadingAnchor.constraint(equalTo: radioBtnGroupByYear.trailingAnchor, constant: 20),
+            sortLblGroupByYear.heightAnchor.constraint(equalToConstant: 20),
+
+            radioBntByBirthday.topAnchor.constraint(equalTo: radioBtnGroupByYear.topAnchor, constant: 36),
+            radioBntByBirthday.leadingAnchor.constraint(equalTo: radioBtnGroupByYear.leadingAnchor),
+            radioBntByBirthday.heightAnchor.constraint(equalToConstant: 24),
+            radioBntByBirthday.widthAnchor.constraint(equalToConstant: 24),
+
+            sortLblBirthDay.centerYAnchor.constraint(equalTo: radioBntByBirthday.centerYAnchor, constant: -1),
+            sortLblBirthDay.leadingAnchor.constraint(equalTo: radioBntByBirthday.trailingAnchor, constant: 20),
+            sortLblBirthDay.heightAnchor.constraint(equalToConstant: 20),
+
         ])
     }
 }

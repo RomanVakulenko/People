@@ -15,7 +15,6 @@ final class PersonCell: UITableViewCell {
         label.textAlignment = .right
         label.textColor = UIColor(red: 0.333, green: 0.333, blue: 0.361, alpha: 1)
         label.font = UIFont(name: "Inter-Regular", size: 15)
-        label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -67,12 +66,11 @@ final class PersonCell: UITableViewCell {
         return label
     }()
 
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
-        formatter.timeZone = TimeZone(secondsFromGMT: 3 * 3600)
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
+    private lazy var dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ru_RU")
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter
     }()
 
 
