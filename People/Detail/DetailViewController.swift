@@ -10,7 +10,6 @@ import UIKit
 
 // MARK: - DetailViewController
 final class DetailViewController: UIViewController {
-//https://stackoverflow.com/questions/27259824/calling-a-phone-number-in-swift - звонок
 
     // MARK: - Public properties
     let viewModel: DetailsViewModelProtocol
@@ -110,14 +109,22 @@ final class DetailViewController: UIViewController {
         return button
     }()
 
+    private lazy var fadeView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+        view.isHidden = true
+        return view
+    }()
+
+    private var number = ""
+
     private lazy var dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "ru_RU")
         dateFormatter.dateFormat = "yyyy-MM-dd"
         return dateFormatter
     }()
-
-    #warning("сделать полупрозрачную вью и Action Sheet с кнопкой для запуска звонка")
 
     // MARK: - Init
     init(viewModel: DetailsViewModelProtocol) {
@@ -145,7 +152,19 @@ final class DetailViewController: UIViewController {
     }
 
     @objc func phoneNumberBtn_touchUpInside(_ sender: UIButton) {
-
+        fadeView.isHidden = false
+        let actionSheet = UIAlertController(title: nil,
+                                            message: nil,
+                                            preferredStyle: .actionSheet)
+        let callPhoneNumber = UIAlertAction(title: "\(number)", style: .default) { _ in
+            self.callNumber(phoneNumber: self.number)
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            self.fadeView.isHidden = true
+        }
+        actionSheet.addAction(callPhoneNumber)
+        actionSheet.addAction(cancel)
+        present(actionSheet, animated: true)
     }
 
     // MARK: - Public methods
@@ -157,12 +176,19 @@ final class DetailViewController: UIViewController {
 
         birthdayLabel.text = formatBirthDate(model.birthday)
         ageLabel.text = calculateAgeString(from: model.birthday)
-        phoneNumberBtn.setTitle(formatPhoneNumber(model.phone), for: .normal)
+        number = formatPhoneNumber(model.phone)
+        phoneNumberBtn.setTitle(number, for: .normal)
+    }
+
+    // MARK: - Private methods
+    ///telprompt:// позволяет отобразить предупреждение пользователю прямо перед звонком и по завершению возвращает в приложение, а не на homescreen, если использовать "tel://" - как пишут в habr
+    private func callNumber(phoneNumber: String) {
+        guard let url = URL(string: "telprompt://\(phoneNumber)"),
+              UIApplication.shared.canOpenURL(url) else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
 
 
-
-    // MARK: - Private methods
     private func formatBirthDate(_ birthDayString: String) -> String {
         let components = makeDateComponents(birthDayString)
 
@@ -240,7 +266,7 @@ final class DetailViewController: UIViewController {
         view.backgroundColor = .white
         [nameLabel, nickNameLabel].forEach { stackView.addSubview($0) }
         [avatarView, stackView, positionLabel].forEach { baseview.addSubview($0) }
-        [baseview, starImg, birthdayLabel, ageLabel, phoneImg, phoneNumberBtn].forEach { view.addSubview($0) }
+        [baseview, starImg, birthdayLabel, ageLabel, phoneImg, phoneNumberBtn, fadeView].forEach { view.addSubview($0) }
     }
 
     private func setupLayout() {
@@ -289,7 +315,14 @@ final class DetailViewController: UIViewController {
             phoneNumberBtn.centerYAnchor.constraint(equalTo: phoneImg.centerYAnchor),
             phoneNumberBtn.leadingAnchor.constraint(equalTo: phoneImg.trailingAnchor, constant: 16),
             phoneNumberBtn.heightAnchor.constraint(equalToConstant: 24),
+
+            fadeView.topAnchor.constraint(equalTo: view.topAnchor),
+            fadeView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            fadeView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            fadeView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+
+
 
 }
