@@ -15,7 +15,6 @@ protocol DataMapperProtocol {
                               completion: @escaping MapperCompletion<T>)
 }
 
-
 final class DataMapper {
    private lazy var decoder: JSONDecoder = {
        let decoder = JSONDecoder()

@@ -29,23 +29,25 @@ extension NetworkRouter: NetworkRouterProtocol {
 
         let session = URLSession(configuration: configuration)
         session.dataTask(with: urlRequest) { data, response, error in
-            
+
             guard error == nil else {
                 if let error = error as NSError? {
                     if error.domain == NSURLErrorDomain && error.code == NSURLErrorTimedOut {
                         DispatchQueue.main.async { completion(.failure(RouterError.badInternetConnection)) }
-                        return
+                    } else {
+                        DispatchQueue.main.async { completion(.failure(RouterError.badStatusCode)) }
                     }
+                    return
                 }
-                DispatchQueue.main.async { completion(.failure(RouterError.badInternetConnection)) }
                 return
             }
 
             if let httpResponse = response as? HTTPURLResponse {
                 let statusCode = httpResponse.statusCode
-                if statusCode < 200 && statusCode > 299 {
+                if statusCode >= 400 && statusCode < 500 {
                     DispatchQueue.main.async { completion(.failure(RouterError.badStatusCode)) }
-                    return
+                } else if statusCode >= 500 {
+                    DispatchQueue.main.async { completion(.failure(RouterError.badInternetConnection)) }
                 }
             }
 

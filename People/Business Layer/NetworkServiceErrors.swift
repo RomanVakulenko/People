@@ -6,8 +6,7 @@
 //
 
 import Foundation
-//Ошибка сетевого соединения (timeout, HTTP-статус 5xx и т.п.). В этом случае в уведомлении текст "Не могу обновить данные. Проверь соединение с интернетом"
-//Ошибка от сервера (HTTP-статус 4xx) или ошибка при парсинге данных. В этом случае в уведомлении текст "Не могу обновить данные. Что-то пошло не так".
+
 enum NetworkServiceErrors: Error, CustomStringConvertible {
     case networkRouterError(error: RouterError)
     case mapperError(error: MapperError)

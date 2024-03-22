@@ -17,7 +17,6 @@ enum SortState {
     case sortByBirthdayChoosen
 }
 
-
 // MARK: - Enum
 enum State: Equatable {
     case none
@@ -30,9 +29,11 @@ enum State: Equatable {
     case sortedByDay
     case nobodyWasFound
     case error(alertText: String)
+
 }
 
 
+// MARK: - PeopleViewModel
 final class PeopleViewModel {
 
     // MARK: - Public properties
@@ -47,14 +48,15 @@ final class PeopleViewModel {
     var personModel: [PersonInfo] {
         isSearching || isDepartmentChoosen ? filteredPerson : downloadedPeople
     }
-    var tabFilteredPerson: [PersonInfo] = []
     var downloadedPeople: [PersonInfo] = []
     var textInSearchBar = ""
-    var sortState: SortState = .sortByNameChoosen
-    var departmentBeforeRefresh = Department.all.rawValue ///для refresh
+    var refreshRequest = false
+    var filteredPerson: [PersonInfo] = []
 
     // MARK: - Private properties
-    var filteredPerson: [PersonInfo] = []
+    private var tabFilteredPerson: [PersonInfo] = []
+    private var departmentBeforeRefresh = Department.all.rawValue ///для refresh
+    private var sortState: SortState = .sortByNameChoosen
     private var isSearching = false
     private var isDepartmentChoosen = false
 
@@ -79,20 +81,10 @@ final class PeopleViewModel {
     }
 
     // MARK: - Public methods
-    func isFirstLaunch() -> Bool {
-        let didLaunchBefore = userDefaults.bool(forKey: "didLaunchBefore")
-        if didLaunchBefore {
-            return false
-        } else {
-            userDefaults.set(true, forKey: "didLaunchBefore")
-            return true
-        }
-    }
 
     func openPersonDetails(_ person: PersonInfo) {
         coordinator?.pushDetailViewController(withModel: person)
     }
-
 
     func groupPeopleWithEqualYearDecending() {
         let currentYear = Calendar.current.component(.year, from: Date())
@@ -179,6 +171,17 @@ final class PeopleViewModel {
         }
         peopleSortedByBirthday = [futureBirthdaysThisYear, nextYearBirthdays]
     }
+
+    // MARK: - Private methods
+    private func isFirstLaunch() -> Bool {
+        let didLaunchBefore = userDefaults.bool(forKey: "didLaunchBefore")
+        if didLaunchBefore {
+            return false
+        } else {
+            userDefaults.set(true, forKey: "didLaunchBefore")
+            return true
+        }
+    }
 }
 
 
@@ -205,7 +208,7 @@ extension PeopleViewModel: DownloadProtocol {
                     strongSelf.state = .loadedAndSaved
                 }
             case .failure(let error):
-                strongSelf.state = .error(alertText: error.localizedDescription)
+                strongSelf.state = .error(alertText: error.description)
             }
         }
     }
