@@ -60,7 +60,6 @@ final class PeopleViewModel {
 
     private weak var coordinator: PeopleFlowCoordinatorProtocol?
     private let networkService: NetworkServiceProtocol
-    //    private let fileManager = FileManager.default
     private let userDefaults: UserDefaults
 
     private lazy var dateFormatter: DateFormatter = {
@@ -80,9 +79,8 @@ final class PeopleViewModel {
     }
 
     // MARK: - Public methods
-    func didTapCell(at indexPath: IndexPath) {
-        let modelAtIndexPath = personModel[indexPath.item]
-        coordinator?.pushDetailViewController(withModel: modelAtIndexPath)
+    func openPersonDetails(_ person: PersonInfo) {
+        coordinator?.pushDetailViewController(withModel: person)
     }
 
     func isFirstLaunch() -> Bool {

@@ -32,8 +32,6 @@ final class PersonCell: UITableViewCell {
         stackView.axis = .horizontal
         stackView.spacing = 4
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.addArrangedSubview(nameLabel)
-        stackView.addArrangedSubview(nickNameLabel)
         return stackView
     }()
 
@@ -119,6 +117,8 @@ final class PersonCell: UITableViewCell {
 
     // MARK: - Private methods
     private func setupView() {
+        stackView.addArrangedSubview(nameLabel)
+        stackView.addArrangedSubview(nickNameLabel)
         [avatarView, stackView, positionLabel, birthdayLabel].forEach { contentView.addSubview($0) }
     }
 
