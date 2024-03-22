@@ -7,16 +7,37 @@
 
 import Foundation
 
-final class DetailViewModel {
+// MARK: - Protocols
+protocol DetailsViewModelProtocol: AnyObject {
+    var personModel: PersonInfo { get set }
+    func didTapNumber()
+    func popViewController()
+}
+
+// MARK: - DetailViewModel
+final class DetailViewModel: DetailsViewModelProtocol {
 
     // MARK: - Public properties
     var personModel: PersonInfo
 
-    init(detailViewModel: PersonInfo) {
-        self.personModel = detailViewModel
-    }
-
     // MARK: - Private properties
     private weak var coordinator: PeopleFlowCoordinatorProtocol?
-//    private let networkService: NetworkServiceProtocol
+
+
+    // MARK: - Init
+    init(detailViewModel: PersonInfo, coordinator: PeopleFlowCoordinatorProtocol) {
+        self.personModel = detailViewModel
+        self.coordinator = coordinator
+    }
+
+    // MARK: - Private methods
+
+    func didTapNumber() {
+
+    }
+
+    func popViewController() {
+        coordinator?.popViewController()
+    }
+
 }

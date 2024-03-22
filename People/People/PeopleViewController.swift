@@ -7,11 +7,13 @@
 
 import UIKit
 
+// MARK: - Enum SkeletonState
 enum SkeletonState {
     case skeleton
     case not
 }
 
+// MARK: - Enum Department
 enum Department: String {
     case all, design, analytics, management, android, ios, qa, back_office, frontEnd, hr, pr, backend, support
 
@@ -33,6 +35,7 @@ enum Department: String {
 }
 
 
+// MARK: - PeopleViewController
 final class PeopleViewController: UIViewController {
 
     // MARK: - Public properties
@@ -215,7 +218,6 @@ final class PeopleViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         setupSearchController()
         setupFilterAsCollectionAndTableView()
         bindViewModel()
@@ -258,14 +260,20 @@ final class PeopleViewController: UIViewController {
                     strongSelf.notFoundView.isHidden = true
                     
                 case .sortedByAlphabet:
+                    strongSelf.searchController.searchBar.setImage(
+                        UIImage(named: "sortBtn"), for: .bookmark, state: .normal)
                     strongSelf.tableView.reloadData()
 
                 case .groupedByYear:
+                    strongSelf.searchController.searchBar.setImage(
+                        UIImage(named: "bookmarkBtnTapped"), for: .bookmark, state: .normal)
                     strongSelf.viewModel.groupPeopleWithEqualYearDecending()
                     strongSelf.tableView.reloadData()
                     strongSelf.refreshControl.endRefreshing()
 
                 case .sortedByDay:
+                    strongSelf.searchController.searchBar.setImage(
+                        UIImage(named: "bookmarkBtnTapped"), for: .bookmark, state: .normal)
                     strongSelf.viewModel.sortPeopleByBirthday()
                     strongSelf.tableView.reloadData()
                     strongSelf.refreshControl.endRefreshing()
@@ -281,22 +289,31 @@ final class PeopleViewController: UIViewController {
     }
 
     private func setupSearchController() {
-           self.searchController.searchResultsUpdater = self
-           self.searchController.obscuresBackgroundDuringPresentation = false
-           self.searchController.hidesNavigationBarDuringPresentation = false
-           self.searchController.searchBar.placeholder = "Введите имя, тег, почту..."
+        self.searchController.searchResultsUpdater = self
+        self.searchController.obscuresBackgroundDuringPresentation = false
+        self.searchController.hidesNavigationBarDuringPresentation = false
+        self.searchController.searchBar.placeholder = "Введите имя, тег, почту..."
 
-           self.navigationItem.searchController = searchController
-           self.definesPresentationContext = false
-           self.navigationItem.hidesSearchBarWhenScrolling = false
+        self.navigationItem.searchController = searchController
+        self.definesPresentationContext = false
+        self.navigationItem.hidesSearchBarWhenScrolling = false
 
-           searchController.delegate = self
-           searchController.searchBar.delegate = self
-           searchController.searchBar.showsBookmarkButton = true
-           searchController.searchBar.setImage(UIImage(named: "sortBtn"), for: .bookmark, state: .normal)
-       }
+        searchController.delegate = self
+        searchController.searchBar.delegate = self
+        searchController.searchBar.showsBookmarkButton = true
+        searchController.searchBar.setImage(
+            UIImage(named: "sortBtn"), for: .bookmark, state: .normal)
+
+        searchController.searchBar.setValue("Отмена", forKey: "cancelButtonText")
+        let attributes:[NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1),
+            .font: UIFont.systemFont(ofSize: 15, weight: .bold)
+        ]
+        UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(attributes, for: .normal)
+    }
 
     private func setupFilterAsCollectionAndTableView() {
+        view.backgroundColor = .white
         [collectionView, spinner, tableView].forEach { view.addSubview($0) }
 
         NSLayoutConstraint.activate([
@@ -393,7 +410,7 @@ extension PeopleViewController: UITableViewDataSource {
         case .groupedByYear:
             guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CustomHeaderView.ReuseId) as? CustomHeaderView else { return nil }
             /// Передаю текст для хедера, начиная со второй секции
-            let text = String(viewModel.peopleGroupedByYear[section].first?.birthday.prefix(4) ?? "не смог дату достать")
+            let text = String(viewModel.peopleGroupedByYear[section].first?.birthday.prefix(4) ?? "")
             header.setupHeader(text: text)
             return header
         case .sortedByDay:
@@ -431,6 +448,9 @@ extension PeopleViewController: UITableViewDataSource {
               let skeletonCell = tableView.dequeueReusableCell(withIdentifier: SkeletonCell.ReuseId, for: indexPath) as? SkeletonCell else {
             return UITableViewCell() }
 
+        cell.selectionStyle = .none
+        skeletonCell.isUserInteractionEnabled = false
+
         if skeletonState == .skeleton {
             return skeletonCell
         } else {
@@ -457,10 +477,18 @@ extension PeopleViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 extension PeopleViewController: UITableViewDelegate {
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.didTapCell(at: indexPath)
-        print(indexPath)// индекс передается видимой ячейки и строки - фильтрованного массива или полного? корректно ли если нет - тогда надо прописать условие и 2 массива взять - фитльтрованный+сортированный и полный
+        let person: PersonInfo
+
+        switch viewModel.state {
+        case .groupedByYear:
+            person = viewModel.peopleGroupedByYear[indexPath.section][indexPath.row]
+        case .sortedByDay:
+            person = viewModel.peopleSortedByBirthday[indexPath.section][indexPath.row]
+        default:
+            person = viewModel.personModel[indexPath.row]
+        }
+        viewModel.openPersonDetails(person)
     }
 }
 
@@ -471,6 +499,12 @@ extension PeopleViewController: UISearchResultsUpdating, UISearchControllerDeleg
     func updateSearchResults(for searchController: UISearchController) {
         self.viewModel.setInSearchMode(searchController)
         self.viewModel.updateSearchController(searchBarText: searchController.searchBar.text)
+
+        if let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField,
+           let glassIconView = textFieldInsideSearchBar.leftView as? UIImageView {
+            glassIconView.image = glassIconView.image?.withRenderingMode(.alwaysTemplate)
+            glassIconView.tintColor = UIColor(red: 0.02, green: 0.02, blue: 0.063, alpha: 1)
+        }
         tableView.reloadData()
     }
 
