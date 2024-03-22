@@ -39,4 +39,5 @@ Table of people's accounts got from API(skeleton, activityIndicator); search, fi
     3. при нажатии на ячейку с номером показать Action Sheet с подтверждением звонка - 2 (0.5)
     4. При нажатии на кнопку с номером телефона должен начаться звонок, а сам Action Sheet закрывается - 2 (0.2)
 25. Custom alert after pull to refresh 2 (2)
-26. Custom activity indicator 1 
+26. Custom activity indicator 1 (1)
+27. App icon 0.2 (0.2)
