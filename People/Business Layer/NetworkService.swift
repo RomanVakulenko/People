@@ -34,9 +34,9 @@ final class NetworkService {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
 
-//        let headersVariant = [successHeaders, errorHeaders]
-//        let randomHeaders = headersVariant.randomElement() ?? successHeaders
-        request.allHTTPHeaderFields = successHeaders
+        let headersVariant = [successHeaders, errorHeaders]
+        let randomHeaders = headersVariant.randomElement() ?? successHeaders
+        request.allHTTPHeaderFields = randomHeaders
         return request
     }
 }
@@ -68,7 +68,11 @@ extension NetworkService: NetworkServiceProtocol {
                            case .success(let peopleModelWithPhoto):
                                completion(.success(peopleModelWithPhoto))
                            case .failure(let error):
-                               completion(.failure(error as! NetworkServiceErrors))
+                               if let networkError = error as? NetworkServiceErrors {
+                                   completion(.failure(networkError))
+                               } else {
+                                   print("Some another error than NetworkServiceErrors")
+                               }
                            }
                        }
 

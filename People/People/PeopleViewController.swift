@@ -204,6 +204,25 @@ final class PeopleViewController: UIViewController {
         return label
     }()
 
+    private lazy var errorViewAtRefreshing: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .red
+        view.isHidden = true
+        return view
+    }()
+
+    private lazy var errorLblAtRefreshing: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        label.textColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        return label
+    }()
+
 
     // MARK: - Init
     init(viewModel: PeopleViewModel) {
@@ -222,6 +241,7 @@ final class PeopleViewController: UIViewController {
         setupFilterAsCollectionAndTableView()
         bindViewModel()
         viewModel.downloadAndSavePeopleInfo()
+        setupErrorViewAtRefreshingWith()
     }
 
 
@@ -231,6 +251,7 @@ final class PeopleViewController: UIViewController {
     }
 
     @objc func refresh_valueChanged(_ sender: UIRefreshControl) {
+        viewModel.refreshRequest = true
         viewModel.downloadAndSavePeopleInfo()
     }
 
@@ -249,6 +270,7 @@ final class PeopleViewController: UIViewController {
                     strongSelf.searchController.searchBar.isHidden = false
 
                 case .refreshing:
+                    //Уведомление закрывает собой статус-бар. Оно должно скрываться спустя 3 секунды само, но его можно также убрать тапом.
                     ()
                 case .loadedAndSaved:
                     strongSelf.viewModel.sortByName(model: &strongSelf.viewModel.downloadedPeople)
@@ -281,8 +303,21 @@ final class PeopleViewController: UIViewController {
                 case .nobodyWasFound:
                     strongSelf.setupNotFoundView()
 
-                case .error(alertText: _):
-                    strongSelf.setupErrorView()
+                case .error(let error):
+                    strongSelf.refreshControl.endRefreshing()
+
+                    if strongSelf.viewModel.refreshRequest {
+                        strongSelf.errorViewAtRefreshing.isHidden = false
+                        strongSelf.searchController.searchBar.isHidden = true
+                        strongSelf.errorLblAtRefreshing.text = error.description
+
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                            strongSelf.errorViewAtRefreshing.isHidden = true
+                            strongSelf.searchController.searchBar.isHidden = false
+                        }
+                    } else {
+                        strongSelf.setupErrorView()
+                    }
                 }
             }
         }
@@ -329,6 +364,23 @@ final class PeopleViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+    }
+
+    private func setupErrorViewAtRefreshingWith() {
+        errorViewAtRefreshing.addSubview(errorLblAtRefreshing)
+        view.addSubview(errorViewAtRefreshing)
+
+        NSLayoutConstraint.activate([
+            errorViewAtRefreshing.topAnchor.constraint(equalTo: view.topAnchor),
+            errorViewAtRefreshing.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            errorViewAtRefreshing.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            errorViewAtRefreshing.bottomAnchor.constraint(equalTo: collectionView.topAnchor),
+
+            errorLblAtRefreshing.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            errorLblAtRefreshing.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            errorLblAtRefreshing.heightAnchor.constraint(equalToConstant: 48),
+            errorLblAtRefreshing.bottomAnchor.constraint(equalTo: errorViewAtRefreshing.bottomAnchor, constant: -12),
         ])
     }
 

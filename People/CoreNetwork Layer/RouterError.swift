@@ -14,10 +14,20 @@ enum RouterError: Error, CustomStringConvertible {
 
     var description: String {
         switch self {
+            ///Ошибка сетевого соединения (timeout, HTTP-статус 5xx и т.п.).
         case .badInternetConnection:
-            return "Не могу обновить данные. Проверь соединение с интернетом"
+            return """
+                    Не могу обновить данные.
+                    Проверь соединение с интернетом
+                    """
+            ///Ошибка от сервера (HTTP-статус 4xx) или ошибка при парсинге данных.
         case .badStatusCode:
-            return "Не могу обновить данные. Что-то пошло не так"
+            return """
+                    Не могу обновить данные.
+                    Что-то пошло не так
+                    """
         }
     }
 }
+
+
