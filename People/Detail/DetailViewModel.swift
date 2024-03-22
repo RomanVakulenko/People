@@ -10,7 +10,6 @@ import Foundation
 // MARK: - Protocols
 protocol DetailsViewModelProtocol: AnyObject {
     var personModel: PersonInfo { get set }
-    func didTapNumber()
     func popViewController()
 }
 
@@ -23,7 +22,6 @@ final class DetailViewModel: DetailsViewModelProtocol {
     // MARK: - Private properties
     private weak var coordinator: PeopleFlowCoordinatorProtocol?
 
-
     // MARK: - Init
     init(detailViewModel: PersonInfo, coordinator: PeopleFlowCoordinatorProtocol) {
         self.personModel = detailViewModel
@@ -31,10 +29,6 @@ final class DetailViewModel: DetailsViewModelProtocol {
     }
 
     // MARK: - Private methods
-
-    func didTapNumber() {
-
-    }
 
     func popViewController() {
         coordinator?.popViewController()

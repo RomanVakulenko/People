@@ -45,7 +45,7 @@ final class PeopleViewModel {
     var peopleGroupedByYear: [[PersonInfo]] = []
     var peopleSortedByBirthday: [[PersonInfo]] = []
     var personModel: [PersonInfo] {
-        self.isSearching || self.isDepartmentChoosen ? filteredPerson : downloadedPeople
+        isSearching || isDepartmentChoosen ? filteredPerson : downloadedPeople
     }
     var tabFilteredPerson: [PersonInfo] = []
     var downloadedPeople: [PersonInfo] = []
@@ -79,10 +79,6 @@ final class PeopleViewModel {
     }
 
     // MARK: - Public methods
-    func openPersonDetails(_ person: PersonInfo) {
-        coordinator?.pushDetailViewController(withModel: person)
-    }
-
     func isFirstLaunch() -> Bool {
         let didLaunchBefore = userDefaults.bool(forKey: "didLaunchBefore")
         if didLaunchBefore {
@@ -92,6 +88,11 @@ final class PeopleViewModel {
             return true
         }
     }
+
+    func openPersonDetails(_ person: PersonInfo) {
+        coordinator?.pushDetailViewController(withModel: person)
+    }
+
 
     func groupPeopleWithEqualYearDecending() {
         let currentYear = Calendar.current.component(.year, from: Date())

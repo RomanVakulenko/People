@@ -289,14 +289,14 @@ final class PeopleViewController: UIViewController {
     }
 
     private func setupSearchController() {
-        self.searchController.searchResultsUpdater = self
-        self.searchController.obscuresBackgroundDuringPresentation = false
-        self.searchController.hidesNavigationBarDuringPresentation = false
-        self.searchController.searchBar.placeholder = "Введите имя, тег, почту..."
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.placeholder = "Введите имя, тег, почту..."
 
-        self.navigationItem.searchController = searchController
-        self.definesPresentationContext = false
-        self.navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.searchController = searchController
+        definesPresentationContext = false
+        navigationItem.hidesSearchBarWhenScrolling = false
 
         searchController.delegate = self
         searchController.searchBar.delegate = self
@@ -414,11 +414,15 @@ extension PeopleViewController: UITableViewDataSource {
             header.setupHeader(text: text)
             return header
         case .sortedByDay:
-            guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CustomHeaderView.ReuseId) as? CustomHeaderView else { return nil }
-            let currentYear = Calendar.current.component(.year, from: Date())
-            let text = String(Calendar.current.component(.year, from: Date()) + 1)
-            header.setupHeader(text: text)
-            return header
+            if viewModel.peopleSortedByBirthday[1].isEmpty {
+                return nil
+            } else {
+                guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CustomHeaderView.ReuseId) as? CustomHeaderView else { return nil }
+                let currentYear = Calendar.current.component(.year, from: Date())
+                let text = String(Calendar.current.component(.year, from: Date()) + 1)
+                header.setupHeader(text: text)
+                return header
+            }
         default:
             return nil
         }
@@ -497,27 +501,30 @@ extension PeopleViewController: UITableViewDelegate {
 extension PeopleViewController: UISearchResultsUpdating, UISearchControllerDelegate, UISearchBarDelegate, UISheetPresentationControllerDelegate {
 
     func updateSearchResults(for searchController: UISearchController) {
-        self.viewModel.setInSearchMode(searchController)
-        self.viewModel.updateSearchController(searchBarText: searchController.searchBar.text)
-
-        if let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField,
-           let glassIconView = textFieldInsideSearchBar.leftView as? UIImageView {
-            glassIconView.image = glassIconView.image?.withRenderingMode(.alwaysTemplate)
-            glassIconView.tintColor = UIColor(red: 0.02, green: 0.02, blue: 0.063, alpha: 1)
-        }
+        viewModel.setInSearchMode(searchController)
+        viewModel.updateSearchController(searchBarText: searchController.searchBar.text)
         tableView.reloadData()
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        self.viewModel.updateSearchController(searchBarText: nil)
-        self.viewModel.textInSearchBar = ""
-        self.viewModel.state = .searchResultNotEmpty
+        viewModel.updateSearchController(searchBarText: nil)
+        viewModel.textInSearchBar = ""
+        viewModel.state = .searchResultNotEmpty
         tableView.reloadData()
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.viewModel.updateSearchController(searchBarText: searchText)
-        self.viewModel.textInSearchBar = ""
+        viewModel.updateSearchController(searchBarText: searchText)
+        if let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField,
+           let glassIconView = textFieldInsideSearchBar.leftView as? UIImageView {
+            glassIconView.image = glassIconView.image?.withRenderingMode(.alwaysTemplate)
+            if searchText == "" {
+                glassIconView.tintColor = UIColor(red: 0.765, green: 0.765, blue: 0.776, alpha: 1)
+            } else {
+                glassIconView.tintColor = UIColor(red: 0.02, green: 0.02, blue: 0.063, alpha: 1)
+            }
+        }
+        viewModel.textInSearchBar = ""
         tableView.reloadData()
     }
 
@@ -570,28 +577,28 @@ extension PeopleViewController: UICollectionViewDelegateFlowLayout {
 extension PeopleViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        self.departments.count
+        departments.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCell.ReuseId,for: indexPath) as? FilterCell  else { return UICollectionViewCell() }
 
-        cell.setupFilter(text: self.departments[indexPath.item])
+        cell.setupFilter(text: departments[indexPath.item])
 
         ///Подсветить выбранную ячейку
         if indexPath == selectedIndexPath {
-            cell.highlight(text: self.departments[indexPath.item])
+            cell.highlight(text: departments[indexPath.item])
         } else {
-            cell.unhighlight(text: self.departments[indexPath.item])
+            cell.unhighlight(text: departments[indexPath.item])
         }
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        self.selectedIndexPath = indexPath
+        selectedIndexPath = indexPath
         collectionView.reloadData()
-        self.viewModel.filterBy(departmentName: Department.dictionary[indexPath.item]?.rawValue ?? "")
+        viewModel.filterBy(departmentName: Department.dictionary[indexPath.item]?.rawValue ?? "")
         tableView.reloadData()
     }
 
