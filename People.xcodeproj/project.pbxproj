@@ -36,6 +36,7 @@
 		ADC512CA2B9E577300A537EC /* DetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512C92B9E577300A537EC /* DetailCell.swift */; };
 		ADC512CE2B9E57D200A537EC /* UIView + ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512CD2B9E57D200A537EC /* UIView + ext.swift */; };
 		ADC512D02B9E581A00A537EC /* Print + ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC512CF2B9E581A00A537EC /* Print + ext.swift */; };
+		ADC9FD8A2BAE28430054D899 /* NVActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = ADC9FD892BAE28430054D899 /* NVActivityIndicatorView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -77,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADC9FD8A2BAE28430054D899 /* NVActivityIndicatorView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,6 +234,9 @@
 			dependencies = (
 			);
 			name = People;
+			packageProductDependencies = (
+				ADC9FD892BAE28430054D899 /* NVActivityIndicatorView */,
+			);
 			productName = People;
 			productReference = ADC5128A2B9E369C00A537EC /* People.app */;
 			productType = "com.apple.product-type.application";
@@ -260,6 +265,9 @@
 				Base,
 			);
 			mainGroup = ADC512812B9E369C00A537EC;
+			packageReferences = (
+				ADC9FD882BAE28430054D899 /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */,
+			);
 			productRefGroup = ADC5128B2B9E369C00A537EC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -520,6 +528,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		ADC9FD882BAE28430054D899 /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ninjaprox/NVActivityIndicatorView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		ADC9FD892BAE28430054D899 /* NVActivityIndicatorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ADC9FD882BAE28430054D899 /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */;
+			productName = NVActivityIndicatorView;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = ADC512822B9E369C00A537EC /* Project object */;
 }

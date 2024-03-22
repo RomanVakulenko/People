@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import NVActivityIndicatorView
 
 // MARK: - Enum SkeletonState
 enum SkeletonState {
@@ -58,16 +59,19 @@ final class PeopleViewController: UIViewController {
     private lazy var refreshControl: UIRefreshControl = {
         let refresh = UIRefreshControl()
         refresh.addTarget(self, action: #selector(refresh_valueChanged), for: .valueChanged)
+        refresh.tintColor = .white
         return refresh
     }()
 
-    private let spinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .medium)
+    private let customSpinner: NVActivityIndicatorView = {
+        let spinner = NVActivityIndicatorView(
+            frame: CGRect(x: 0, y: 0, width: 24, height: 24),
+            type: .circleStrokeSpin,
+            color: UIColor(red: 0.396, green: 0.204, blue: 1, alpha: 1),
+            padding: 24)
         spinner.translatesAutoresizingMaskIntoConstraints = false
-        spinner.color = UIColor(red: 0.591, green: 0.591, blue: 0.609, alpha: 1)
         return spinner
     }()
-
     private lazy var tableView: UITableView = {
         let tableView = UITableView.init(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -252,6 +256,7 @@ final class PeopleViewController: UIViewController {
 
     @objc func refresh_valueChanged(_ sender: UIRefreshControl) {
         viewModel.refreshRequest = true
+        customSpinner.startAnimating()
         viewModel.downloadAndSavePeopleInfo()
     }
 
@@ -269,14 +274,12 @@ final class PeopleViewController: UIViewController {
                     strongSelf.errorView.isHidden = true
                     strongSelf.searchController.searchBar.isHidden = false
 
-                case .refreshing:
-                    //Уведомление закрывает собой статус-бар. Оно должно скрываться спустя 3 секунды само, но его можно также убрать тапом.
-                    ()
                 case .loadedAndSaved:
                     strongSelf.viewModel.sortByName(model: &strongSelf.viewModel.downloadedPeople)
                     strongSelf.skeletonState = .not
                     strongSelf.tableView.reloadData()
                     strongSelf.refreshControl.endRefreshing()
+                    strongSelf.customSpinner.stopAnimating()
 
                 case .searchResultNotEmpty:
                     strongSelf.notFoundView.isHidden = true
@@ -285,6 +288,8 @@ final class PeopleViewController: UIViewController {
                     strongSelf.searchController.searchBar.setImage(
                         UIImage(named: "sortBtn"), for: .bookmark, state: .normal)
                     strongSelf.tableView.reloadData()
+                    strongSelf.refreshControl.endRefreshing()
+                    strongSelf.customSpinner.stopAnimating()
 
                 case .groupedByYear:
                     strongSelf.searchController.searchBar.setImage(
@@ -292,6 +297,7 @@ final class PeopleViewController: UIViewController {
                     strongSelf.viewModel.groupPeopleWithEqualYearDecending()
                     strongSelf.tableView.reloadData()
                     strongSelf.refreshControl.endRefreshing()
+                    strongSelf.customSpinner.stopAnimating()
 
                 case .sortedByDay:
                     strongSelf.searchController.searchBar.setImage(
@@ -299,16 +305,18 @@ final class PeopleViewController: UIViewController {
                     strongSelf.viewModel.sortPeopleByBirthday()
                     strongSelf.tableView.reloadData()
                     strongSelf.refreshControl.endRefreshing()
+                    strongSelf.customSpinner.stopAnimating()
 
                 case .nobodyWasFound:
                     strongSelf.setupNotFoundView()
 
                 case .error(let error):
                     strongSelf.refreshControl.endRefreshing()
+                    strongSelf.customSpinner.stopAnimating()
 
                     if strongSelf.viewModel.refreshRequest {
-                        strongSelf.errorViewAtRefreshing.isHidden = false
                         strongSelf.searchController.searchBar.isHidden = true
+                        strongSelf.errorViewAtRefreshing.isHidden = false
                         strongSelf.errorLblAtRefreshing.text = error.description
 
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
@@ -349,16 +357,16 @@ final class PeopleViewController: UIViewController {
 
     private func setupFilterAsCollectionAndTableView() {
         view.backgroundColor = .white
-        [collectionView, spinner, tableView].forEach { view.addSubview($0) }
+        [collectionView, customSpinner, tableView].forEach { view.addSubview($0) }
 
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             collectionView.heightAnchor.constraint(equalToConstant: 44),
-            //пока не уверен - возможно надо будет делать 2ой набор констрейнтов
-            spinner.bottomAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 8),
-            spinner.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
+
+            customSpinner.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 26),
+            customSpinner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
             tableView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
