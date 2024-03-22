@@ -21,7 +21,6 @@ enum SortState {
 enum State: Equatable {
     case none
     case loading
-    case refreshing
     case loadedAndSaved
     case searchResultNotEmpty
     case sortedByAlphabet
@@ -50,7 +49,7 @@ final class PeopleViewModel {
     }
     var downloadedPeople: [PersonInfo] = []
     var textInSearchBar = ""
-    var refreshRequest = false
+    var refreshRequest = false ///for customErrorAlert
     var filteredPerson: [PersonInfo] = []
 
     // MARK: - Private properties
